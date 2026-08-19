@@ -1,4 +1,4 @@
-import { 
+import type { 
   Account, 
   Transaction, 
   Invoice, 
@@ -10,7 +10,7 @@ import {
 } from '../types'
 
 // Mock API base URL - replace with actual API endpoint
-const API_BASE_URL = process.env.VITE_API_URL || 'http://localhost:3001/api'
+const API_BASE_URL = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3001/api'
 
 class FinanceApi {
   private async request<T>(

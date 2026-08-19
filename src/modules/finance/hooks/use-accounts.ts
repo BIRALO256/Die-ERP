@@ -1,24 +1,27 @@
+import { useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { financeApi } from '../api/finance-api'
-import { Account, AccountFilters } from '../types'
+import type { Account, AccountFilters } from '../types'
 import { useFinanceStore } from '../stores/finance-store'
 
 export function useAccounts(filters?: AccountFilters) {
   const setAccounts = useFinanceStore((state) => state.setAccounts)
   const setAccountsLoading = useFinanceStore((state) => state.setAccountsLoading)
 
-  return useQuery({
+  const query = useQuery({
     queryKey: ['finance', 'accounts', filters],
     queryFn: () => financeApi.getAccounts(filters),
     select: (response) => response.data,
-    onSuccess: (accounts) => {
-      setAccounts(accounts)
-      setAccountsLoading(false)
-    },
-    onError: () => {
-      setAccountsLoading(false)
-    },
   })
+
+  useEffect(() => {
+    if (query.data) {
+      setAccounts(query.data)
+    }
+    setAccountsLoading(query.isLoading)
+  }, [query.data, query.isLoading, setAccounts, setAccountsLoading])
+
+  return query
 }
 
 export function useAccount(id: string) {

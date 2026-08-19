@@ -1,17 +1,22 @@
-import { NavLink } from 'react-router-dom'
+import { NavLink, useLocation } from 'react-router-dom'
 import { 
   LayoutDashboard, 
   DollarSign, 
   Users, 
   ShoppingCart, 
   ChevronRight,
-  Activity,
   ShieldCheck,
   Building,
-  FileSpreadsheet
+  FileSpreadsheet,
+  TrendingUp,
+  Receipt,
+  BookOpen,
+  X
 } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { cn } from '../../shared/utils'
+import { useSidebarStore } from '../../shared/stores/sidebar-store'
+import deiLogo from '../../assets/dei-biopharma-logo.png'
 
 interface NavItem {
   title: string
@@ -33,7 +38,9 @@ const navigation: NavItem[] = [
     children: [
       { title: 'Overview', href: '/finance', icon: LayoutDashboard },
       { title: 'Accounts', href: '/finance/accounts', icon: DollarSign },
-      { title: 'Transactions', href: '/finance/transactions', icon: Activity },
+      { title: 'Incomes', href: '/finance/incomes', icon: TrendingUp },
+      { title: 'Expenses', href: '/finance/expenses', icon: Receipt },
+      { title: 'Journals', href: '/finance/journals', icon: BookOpen },
       { title: 'Reports', href: '/finance/reports', icon: FileSpreadsheet },
     ],
   },
@@ -58,8 +65,26 @@ const navigation: NavItem[] = [
   },
 ]
 
-export function Sidebar() {
-  const [expandedItems, setExpandedItems] = useState<string[]>(['Finance', 'Procurement'])
+interface SidebarProps {
+  isMobile?: boolean
+}
+
+export function Sidebar({ isMobile = false }: SidebarProps) {
+  const { isCollapsed, toggleCollapsed, closeMobile } = useSidebarStore()
+  const [expandedItems, setExpandedItems] = useState<string[]>([])
+  const [activeFlyout, setActiveFlyout] = useState<string | null>(null)
+  const location = useLocation()
+
+  // Auto-close flyout on route change
+  useEffect(() => {
+    setActiveFlyout(null)
+    if (isMobile) {
+      closeMobile()
+    }
+  }, [location.pathname, isMobile, closeMobile])
+
+  // In mobile view, sidebar is always expanded inside the drawer
+  const collapsed = isMobile ? false : isCollapsed
 
   const toggleExpanded = (title: string) => {
     setExpandedItems(prev => 
@@ -69,28 +94,42 @@ export function Sidebar() {
     )
   }
 
-  const isExpanded = (title: string) => expandedItems.includes(title)
+  const isGroupActive = (item: NavItem) => {
+    if (item.href && location.pathname === item.href) return true
+    if (item.children) {
+      return item.children.some(child => child.href === location.pathname)
+    }
+    return false
+  }
 
-  const renderNavItem = (item: NavItem, level = 0) => {
+  const renderExpandedNav = (item: NavItem, level = 0) => {
     const hasChildren = item.children && item.children.length > 0
+    const isParentActive = isGroupActive(item)
+    const isExpanded = expandedItems.includes(item.title)
 
     if (hasChildren) {
       return (
         <div key={item.title} className="mb-1">
           <button
+            type="button"
             onClick={() => toggleExpanded(item.title)}
             className={cn(
-              "w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-all duration-150",
-              isExpanded(item.title)
-                ? "text-slate-900 bg-slate-100/70"
-                : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+              "w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-all duration-150 group cursor-pointer",
+              isParentActive
+                ? "text-[#0e1f17] bg-[#143d1d]/10 font-bold"
+                : isExpanded
+                ? "text-[#0e1f17] bg-[#f6f5f1]"
+                : "text-slate-600 hover:text-[#0e1f17] hover:bg-[#f6f5f1]"
             )}
           >
-            <div className="flex items-center space-x-3">
-              <item.icon className="h-4 w-4 text-slate-500" />
-              <span>{item.title}</span>
+            <div className="flex items-center space-x-3 min-w-0">
+              <item.icon className={cn(
+                "h-4 w-4 shrink-0 transition-colors",
+                isParentActive ? "text-[#143d1d]" : "text-slate-400 group-hover:text-[#0e1f17]"
+              )} />
+              <span className="truncate">{item.title}</span>
             </div>
-            <div className="flex items-center space-x-1.5">
+            <div className="flex items-center space-x-1.5 shrink-0 ml-2">
               {item.badge && (
                 <span className="px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-[#c8102e]/10 text-[#c8102e]">
                   {item.badge}
@@ -99,15 +138,15 @@ export function Sidebar() {
               <ChevronRight 
                 className={cn(
                   'h-3.5 w-3.5 text-slate-400 transition-transform duration-200',
-                  isExpanded(item.title) ? 'rotate-90' : ''
+                  isExpanded ? 'rotate-90 text-slate-700' : ''
                 )}
               />
             </div>
           </button>
           
-          {isExpanded(item.title) && (
-            <div className="ml-4 pl-3 my-1 space-y-0.5 border-l border-slate-200">
-              {item.children?.map(child => renderNavItem(child, level + 1))}
+          {isExpanded && (
+            <div className="ml-4 pl-3 my-1 space-y-0.5 border-l border-[#143d1d]/20 animate-in fade-in slide-in-from-top-1 duration-150">
+              {item.children?.map(child => renderExpandedNav(child, level + 1))}
             </div>
           )}
         </div>
@@ -119,71 +158,241 @@ export function Sidebar() {
         key={item.title}
         to={item.href!}
         end
+        onClick={() => isMobile && closeMobile()}
         className={({ isActive }) =>
           cn(
-            'flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-all duration-150',
+            'flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-all duration-150 group',
             isActive 
-              ? 'bg-[#c8102e] text-white shadow-sm shadow-[#c8102e]/30' 
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+              ? 'bg-[#143d1d] text-white shadow-sm font-bold' 
+              : 'text-slate-600 hover:text-[#0e1f17] hover:bg-[#f6f5f1]'
           )
         }
       >
-        <div className="flex items-center space-x-3">
-          <item.icon className="h-4 w-4" />
-          <span>{item.title}</span>
-        </div>
-        {item.badge && (
-          <span className="px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-white/20 text-white">
-            {item.badge}
-          </span>
+        {({ isActive }) => (
+          <>
+            <div className="flex items-center space-x-3 min-w-0">
+              <item.icon className={cn(
+                "h-4 w-4 shrink-0",
+                isActive ? "text-white" : "text-slate-400 group-hover:text-[#0e1f17]"
+              )} />
+              <span className="truncate">{item.title}</span>
+            </div>
+            {item.badge && (
+              <span className={cn(
+                "px-1.5 py-0.5 text-[10px] font-bold rounded-full ml-2 shrink-0",
+                isActive ? "bg-white/20 text-white" : "bg-[#c8102e]/10 text-[#c8102e]"
+              )}>
+                {item.badge}
+              </span>
+            )}
+          </>
         )}
       </NavLink>
     )
   }
 
-  return (
-    <div className="w-68 bg-white border-r border-slate-200/90 flex flex-col h-screen select-none shrink-0 sticky top-0">
-      {/* Brand Header */}
-      <div className="p-5 border-b border-slate-100 flex items-center space-x-3">
-        {/* Botanical Leaf Logo Icon */}
-        <div className="h-10 w-10 rounded-2xl bg-[#143d1d] flex items-center justify-center shadow-sm text-white shrink-0">
-          <svg viewBox="0 0 24 24" className="h-5 w-5 fill-current" stroke="none">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
-          </svg>
-        </div>
+  const renderCollapsedNav = (item: NavItem) => {
+    const hasChildren = item.children && item.children.length > 0
+    const isParentActive = isGroupActive(item)
+    const isFlyoutOpen = activeFlyout === item.title
 
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center space-x-1">
-            <span className="font-extrabold text-base tracking-tight text-[#c8102e]">Dei</span>
-            <span className="font-extrabold text-base tracking-tight text-slate-900">BioPharma</span>
-          </div>
-          <p className="text-[11px] font-medium text-slate-500 truncate">
-            Enterprise Operations
-          </p>
+    if (hasChildren) {
+      return (
+        <div 
+          key={item.title} 
+          className="relative group mb-1.5"
+          onMouseEnter={() => setActiveFlyout(item.title)}
+          onMouseLeave={() => setActiveFlyout(null)}
+        >
+          <button
+            type="button"
+            onClick={() => setActiveFlyout(isFlyoutOpen ? null : item.title)}
+            className={cn(
+              "w-11 h-11 mx-auto flex items-center justify-center rounded-xl transition-all relative cursor-pointer",
+              isParentActive || isFlyoutOpen
+                ? "bg-[#c8102e]/10 text-[#c8102e] font-bold"
+                : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+            )}
+            aria-label={item.title}
+          >
+            <item.icon className="h-5 w-5" />
+            {item.badge && (
+              <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-[#c8102e] ring-2 ring-white"></span>
+            )}
+          </button>
+
+          {/* Flyout Submenu Popover on Hover/Click */}
+          {isFlyoutOpen && (
+            <div className="absolute left-full top-0 ml-2.5 w-48 bg-white rounded-2xl shadow-xl border border-slate-200/90 py-2 px-1.5 z-50 animate-in fade-in zoom-in-95 duration-150">
+              <div className="px-3 py-1.5 border-b border-slate-100 flex items-center justify-between mb-1">
+                <span className="text-xs font-bold text-slate-900">{item.title}</span>
+                {item.badge && (
+                  <span className="px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-[#c8102e]/10 text-[#c8102e]">
+                    {item.badge}
+                  </span>
+                )}
+              </div>
+              <div className="space-y-0.5">
+                {item.children?.map(child => (
+                  <NavLink
+                    key={child.title}
+                    to={child.href!}
+                    end
+                    onClick={() => setActiveFlyout(null)}
+                    className={({ isActive }) =>
+                      cn(
+                        'flex items-center space-x-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-colors',
+                        isActive
+                          ? 'bg-[#c8102e] text-white font-semibold shadow-xs'
+                          : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                      )
+                    }
+                  >
+                    <child.icon className="h-3.5 w-3.5 shrink-0" />
+                    <span className="truncate">{child.title}</span>
+                  </NavLink>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )
+    }
+
+    return (
+      <div key={item.title} className="relative group mb-1.5">
+        <NavLink
+          to={item.href!}
+          end
+          className={({ isActive }) =>
+            cn(
+              'w-11 h-11 mx-auto flex items-center justify-center rounded-xl transition-all relative',
+              isActive 
+                ? 'bg-[#c8102e] text-white shadow-sm shadow-[#c8102e]/30' 
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+            )
+          }
+          aria-label={item.title}
+        >
+          {({ isActive }) => (
+            <>
+              <item.icon className="h-5 w-5" />
+              {item.badge && (
+                <span className={cn(
+                  "absolute top-1.5 right-1.5 h-2 w-2 rounded-full ring-2 ring-white",
+                  isActive ? "bg-white" : "bg-[#c8102e]"
+                )}></span>
+              )}
+            </>
+          )}
+        </NavLink>
+
+        {/* Hover Tooltip for Single Items */}
+        <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2.5 px-2.5 py-1 bg-slate-900 text-white text-xs font-medium rounded-lg shadow-lg whitespace-nowrap pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-50">
+          {item.title}
         </div>
       </div>
+    )
+  }
 
-      {/* Navigation Links */}
-      <div className="flex-1 px-3.5 py-4 overflow-y-auto space-y-1">
-        <div className="px-3 pb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-          Main Menu
-        </div>
+  return (
+    <aside 
+      className={cn(
+        "bg-white border-r border-[#e3e1da] flex flex-col h-screen select-none shrink-0 transition-all duration-300 ease-in-out",
+        collapsed ? "w-20" : "w-68"
+      )}
+    >
+      {/* Brand Header - Fixed */}
+      <div className={cn(
+        "h-16 shrink-0 border-b border-[#e3e1da] flex items-center transition-all duration-300",
+        collapsed ? "justify-center px-2" : "justify-between px-5"
+      )}>
+        {collapsed ? (
+          /* Chopped Logo Emblem for Collapsed View */
+          <div 
+            className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-center overflow-hidden shrink-0 shadow-xs hover:border-[#c8102e]/40 transition-all cursor-pointer"
+            onClick={toggleCollapsed}
+            title="Expand Sidebar (Dei BioPharma)"
+          >
+            <div className="w-7 h-7 overflow-hidden flex items-center justify-start">
+              <img 
+                src={deiLogo} 
+                alt="Dei BioPharma Logo" 
+                className="h-7 w-auto max-w-none object-left object-cover pointer-events-none select-none"
+              />
+            </div>
+          </div>
+        ) : (
+          /* Full Logo for Expanded View */
+          <div className="flex items-center justify-between w-full min-w-0">
+            <NavLink 
+              to="/dashboard" 
+              onClick={() => isMobile && closeMobile()}
+              className="flex items-center gap-2 group min-w-0"
+            >
+              <img 
+                src={deiLogo} 
+                alt="Dei BioPharma" 
+                className="h-8 max-h-8.5 w-auto object-contain object-left transition-transform group-hover:scale-[1.02]"
+              />
+            </NavLink>
+
+            {/* Close Button on Mobile Drawer Only */}
+            {isMobile && (
+              <button
+                type="button"
+                onClick={closeMobile}
+                className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+                aria-label="Close sidebar"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Navigation Links Area - Independently scrollable if content overflows */}
+      <div className={cn(
+        "flex-1 min-h-0 overflow-y-auto overflow-x-hidden space-y-1 transition-all duration-300",
+        collapsed ? "py-4 px-2" : "py-4 px-3.5"
+      )}>
         <nav className="space-y-1">
-          {navigation.map(item => renderNavItem(item))}
+          {navigation.map(item => 
+            collapsed ? renderCollapsedNav(item) : renderExpandedNav(item)
+          )}
         </nav>
       </div>
 
-      {/* Facility & Compliance Status Footer */}
-      <div className="p-4 border-t border-slate-100 bg-slate-50/70">
-        <div className="flex items-center space-x-2 text-xs text-slate-700 mb-1">
-          <ShieldCheck className="h-4 w-4 text-[#166534]" />
-          <span className="font-bold text-slate-800">GMP Certified Plant</span>
-        </div>
-        <div className="flex items-center space-x-1.5 text-[11px] text-slate-500">
-          <Building className="h-3.5 w-3.5 text-slate-400 shrink-0" />
-          <span className="truncate">Matugga Facility • Wakiso</span>
-        </div>
+      {/* Facility & Compliance Status Footer - Fixed */}
+      <div className={cn(
+        "shrink-0 border-t border-[#e3e1da] bg-[#f6f5f1] transition-all duration-300",
+        collapsed ? "p-3 flex flex-col items-center" : "p-4"
+      )}>
+        {collapsed ? (
+          <div 
+            className="w-10 h-10 rounded-xl bg-[#143d1d]/10 border border-[#143d1d]/20 flex items-center justify-center cursor-pointer group relative"
+            title="GMP Certified Plant • Matugga Facility"
+          >
+            <ShieldCheck className="h-5 w-5 text-[#143d1d]" />
+            <div className="absolute left-full bottom-2 ml-2.5 px-3 py-2 bg-[#0e1f17] text-white text-xs rounded-xl shadow-xl whitespace-nowrap pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-50">
+              <p className="font-bold text-emerald-400">GMP Certified Plant</p>
+              <p className="text-[11px] text-slate-300">Matugga Facility • Wakiso</p>
+            </div>
+          </div>
+        ) : (
+          <div>
+            <div className="flex items-center space-x-2 text-xs mb-1">
+              <ShieldCheck className="h-4 w-4 text-[#143d1d] shrink-0" />
+              <span className="font-bold text-[#0e1f17] truncate">GMP Certified Plant</span>
+            </div>
+            <div className="flex items-center space-x-1.5 text-[11px] text-slate-400">
+              <Building className="h-3.5 w-3.5 shrink-0" />
+              <span className="truncate">Matugga Facility • Wakiso</span>
+            </div>
+          </div>
+        )}
       </div>
-    </div>
+    </aside>
   )
 }

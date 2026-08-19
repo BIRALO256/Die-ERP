@@ -1,6 +1,6 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { DashboardLayout } from '../layouts/dashboard-layout'
-import { lazy, type ComponentType } from 'react'
+import { lazy } from 'react'
 
 // Dashboard Pages - Shared across all modules
 const DashboardPage = lazy(() => import('../../modules/dashboard/pages/dashboard-page'))
@@ -8,7 +8,9 @@ const DashboardPage = lazy(() => import('../../modules/dashboard/pages/dashboard
 // Finance Module Pages
 const FinanceDashboard = lazy(() => import('../../modules/finance/pages/finance-dashboard'))
 const AccountsPage = lazy(() => import('../../modules/finance/pages/accounts-page'))
-const TransactionsPage = lazy(() => import('../../modules/finance/pages/transactions-page'))
+const IncomesPage = lazy(() => import('../../modules/finance/pages/incomes-page'))
+const ExpensesPage = lazy(() => import('../../modules/finance/pages/expenses-page'))
+const JournalsPage = lazy(() => import('../../modules/finance/pages/journals-page'))
 const ReportsPage = lazy(() => import('../../modules/finance/pages/reports-page'))
 
 // HR Module Pages
@@ -46,8 +48,20 @@ export const router = createBrowserRouter([
             element: <AccountsPage />,
           },
           {
+            path: 'incomes',
+            element: <IncomesPage />,
+          },
+          {
+            path: 'expenses',
+            element: <ExpensesPage />,
+          },
+          {
+            path: 'journals',
+            element: <JournalsPage />,
+          },
+          {
             path: 'transactions',
-            element: <TransactionsPage />,
+            element: <JournalsPage />,
           },
           {
             path: 'reports',
