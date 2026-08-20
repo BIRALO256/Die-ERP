@@ -2,23 +2,12 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
   Plus,
-  UserCheck,
   Upload,
-  FileText,
-  Users,
-  DollarSign,
   CheckCircle2,
-  TrendingUp,
   ArrowUpRight,
-  Microscope,
   AlertTriangle,
   Clock,
-  Activity,
   ChevronRight,
-  Thermometer,
-  FlaskConical,
-  Beaker,
-  ShieldCheck
 } from 'lucide-react'
 
 // ─── DATA ─────────────────────────────────────────────────────────────────────
@@ -34,341 +23,282 @@ const weeklyBatches = [
 const maxBatch = Math.max(...weeklyBatches.map(d => d.completed + d.pending))
 
 const activities = [
-  { id: 1, title: 'mRNA-1273 Lot #BP-2024-8847 released',     detail: 'QC release · Matugga GMP Line 3',              time: '15 min ago', alert: false, icon: CheckCircle2 },
-  { id: 2, title: 'Bioreactor STR-04 temperature excursion',  detail: 'Alert · 37.8°C vs 36.5°C spec — auto-corrected', time: '1 hr ago',   alert: true,  icon: Thermometer  },
-  { id: 3, title: 'Oncology Gene Therapy QC Assay passed',    detail: 'Sterility & potency confirmed · Kakiika',        time: '2 hr ago',   alert: false, icon: FlaskConical  },
-  { id: 4, title: 'LNP Order #1247 cleared incoming QC',      detail: 'Lipid nanoparticles · Lonza batch cert verified', time: '3 hr ago',   alert: false, icon: Beaker        },
-  { id: 5, title: 'Pediatric Batch #BP-2026-1090 created',    detail: 'Nakaseke facility · 50,000 vial run',            time: '4 hr ago',   alert: false, icon: Plus          },
+  { id: 1, title: 'mRNA-1273 Lot #BP-2024-8847 released',      detail: 'Matugga GMP Line 3',              time: '15 min', alert: false },
+  { id: 2, title: 'Bioreactor STR-04 temperature excursion',   detail: 'Auto-corrected · monitoring',     time: '1 hr',   alert: true  },
+  { id: 3, title: 'Oncology Gene Therapy QC Assay passed',     detail: 'Sterility & potency · Kakiika',   time: '2 hr',   alert: false },
+  { id: 4, title: 'LNP Order #1247 cleared incoming QC',       detail: 'Lonza batch cert verified',       time: '3 hr',   alert: false },
+  { id: 5, title: 'Pediatric Batch #BP-2026-1090 created',     detail: 'Nakaseke · 50,000 vial run',      time: '4 hr',   alert: false },
 ]
 
 const scientists = [
   { rank: 1, initials: 'ND', name: 'Nanziri Dianah', role: 'Lead mRNA Scientist',      batches: 42, delta: +4 },
   { rank: 2, initials: 'JB', name: 'Jovic Biralo',   role: 'QA & Compliance Director', batches: 38, delta: +2 },
   { rank: 3, initials: 'GO', name: 'Gibson Oluka',   role: 'Bioreactor Ops Lead',      batches: 35, delta: -1 },
-  { rank: 4, initials: 'AM', name: 'Amina Mutenyo',  role: 'Regulatory Affairs Lead',  batches: 29, delta: +3 },
 ]
 
 export default function DashboardPage() {
   const [activeDay, setActiveDay] = useState<number | null>(4)
 
-  return (
-    <div className="space-y-6">
+  const todayData = weeklyBatches[activeDay ?? 4]
 
-      {/* ── HEADER ──────────────────────────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+  return (
+    <div className="space-y-8">
+
+      {/* ── HEADER ─────────────────────────────────────────────────────────
+          Rationale: Greeting + ONE action button. Everything else removed.
+          Fitts's Law — primary CTA is the only red element in view.
+          The greeting establishes context; the subtitle is the only status
+          line the user needs before scanning down.
+      */}
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 leading-none">
-            Good morning, Dr. Nakato 👋
+          <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1">
+            Matugga GMP Plant · Tuesday, Aug 19
+          </p>
+          <h1 className="text-3xl font-bold tracking-tight text-[#0e1f17] leading-none" style={{ fontFamily: 'Poppins, Inter, sans-serif' }}>
+            Good morning, Dr. Nakato
           </h1>
-          <p className="text-[13px] text-slate-400 mt-1.5">
-            Matugga GMP Plant · Tuesday, Aug 19 ·{' '}
-            {/* Emerald used ONLY here because it is a genuine operational status */}
-            <span className="text-emerald-600 font-semibold">All 12 bioreactors running</span>
+          <p className="text-sm text-slate-400 mt-2">
+            12 bioreactors running ·{' '}
+            <span className="text-amber-600 font-semibold">1 temp deviation monitored</span>
           </p>
         </div>
-
-        {/* Actions: one red primary, rest are plain borders — Fitts's Law priority */}
-        <div className="flex items-center gap-2 flex-wrap shrink-0">
-          <button className="flex items-center gap-1.5 px-3.5 py-2 bg-[#c8102e] hover:bg-[#a80e27] text-white text-xs font-bold rounded-xl shadow-sm transition-all cursor-pointer">
+        <div className="flex items-center gap-2 shrink-0">
+          <button className="flex items-center gap-1.5 px-4 py-2 bg-[#c8102e] hover:bg-[#a80e27] text-white text-xs font-bold rounded-xl shadow-sm transition-all cursor-pointer">
             <Plus className="h-3.5 w-3.5" />
             New Batch
           </button>
-          <button className="flex items-center gap-1.5 px-3.5 py-2 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-xl transition-all cursor-pointer">
-            <UserCheck className="h-3.5 w-3.5 text-slate-400" />
-            Assign Task
-          </button>
-          <button className="flex items-center gap-1.5 px-3.5 py-2 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-xl transition-all cursor-pointer">
+          <button className="flex items-center gap-1.5 px-3.5 py-2 border border-[#e3e1da] bg-white hover:bg-[#f6f5f1] text-slate-600 text-xs font-semibold rounded-xl transition-all cursor-pointer">
             <Upload className="h-3.5 w-3.5 text-slate-400" />
             QC Report
           </button>
         </div>
       </div>
 
-      {/* ── FACILITY STATUS STRIP ───────────────────────────────────────────
-          Dots: green = all clear, amber = needs attention.
-          Everything else stays slate. No blue, no teal, no purple.
+      {/* ── HERO METRIC + 3 SECONDARY ──────────────────────────────────────
+          Rationale: Inverted Pyramid principle (journalism → dashboard design).
+          ONE dominant number answers "how are we doing today?" immediately.
+          3 supporting numbers sit below it at smaller scale — hierarchy
+          through SIZE alone, not color or decoration.
+          
+          Fitts's Law: the primary metric is the largest element on the page.
+          Miller's Law: 4 total numbers (1 hero + 3 secondary) stays within 
+          the 7±2 chunk limit for immediate comprehension.
       */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-y sm:divide-y-0 divide-slate-100 bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-        {[
-          { label: 'GMP Lines Active', value: '1–12', note: 'All lines running',     dot: 'ok'   },
-          { label: 'Sterility Alerts', value: '0',    note: 'Clean last 30 days',    dot: 'ok'   },
-          { label: 'Cold Chain',       value: '-80°C', note: '±0.2°C deviation',     dot: 'ok'   },
-          { label: 'Open QC Issues',   value: '1',    note: 'STR-04 auto-corrected', dot: 'warn' },
-        ].map(item => (
-          <div key={item.label} className="px-5 py-3.5 flex items-start gap-3">
-            <span className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${item.dot === 'ok' ? 'bg-emerald-500' : 'bg-amber-500'}`} />
+      <div className="bg-white rounded-2xl border border-[#e3e1da] overflow-hidden">
+        <div className="grid sm:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-[#e3e1da]">
+
+          {/* Hero — weekly batch output */}
+          <div className="sm:col-span-1 p-5 flex flex-col justify-between">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">{item.label}</p>
-              <p className="text-2xl font-extrabold text-slate-900 leading-tight mt-0.5">{item.value}</p>
-              <p className={`text-[11px] font-medium mt-0.5 ${item.dot === 'warn' ? 'text-amber-600' : 'text-slate-400'}`}>{item.note}</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                This Week
+              </p>
+              <p className="text-4xl font-extrabold text-[#0e1f17] mt-2 leading-none tracking-tight">
+                {weeklyBatches.reduce((s, d) => s + d.completed, 0)}
+              </p>
+              <p className="text-xs font-semibold text-slate-400 mt-1.5">batches released</p>
+            </div>
+            <div className="mt-4 flex items-center gap-1.5 text-[11px] font-bold text-emerald-600">
+              <ArrowUpRight className="h-3.5 w-3.5" />
+              +8% vs last week
             </div>
           </div>
-        ))}
-      </div>
 
-      {/* ── KPI CARDS ───────────────────────────────────────────────────────
-          All icons are slate-500 on slate-100 backgrounds.
-          Green appears ONLY on positive delta text.
-          Amber appears ONLY on the bioreactor warning card.
-          No blue, no brand red, no purple on icons.
-      */}
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {[
-          {
-            label: 'Batch Instructions',
-            value: '4',
-            sub: '1 pending release · 0 under review',
-            delta: 'All within SLA',
-            positive: true,
-            icon: FileText,
-            bar: 75
-          },
-          {
-            label: 'Active Research Staff',
-            value: '847',
-            sub: '847 of 847 on duty',
-            delta: '100% attendance today',
-            positive: true,
-            icon: Users,
-            bar: 100
-          },
-          {
-            label: 'Monthly Revenue',
-            value: '$2.45M',
-            sub: 'August to date · target $2.6M',
-            delta: '+18.3% vs July',
-            positive: true,
-            icon: DollarSign,
-            bar: 94
-          },
-          {
-            label: 'Active Bioreactors',
-            value: '12 / 12',
-            sub: 'STR-04 excursion auto-corrected',
-            delta: '1 deviation — monitoring',
-            positive: false,
-            icon: Activity,
-            bar: 100
-          },
-        ].map(card => {
-          const Icon = card.icon
-          return (
-            <div key={card.label} className="bg-white rounded-2xl border border-slate-200 shadow-xs p-5 flex flex-col gap-3 hover:shadow-sm hover:border-slate-300 transition-all duration-200">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="h-7 w-7 rounded-lg bg-slate-100 flex items-center justify-center">
-                    <Icon className="h-3.5 w-3.5 text-slate-500" />
-                  </div>
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">{card.label}</span>
-                </div>
-              </div>
-
+          {/* 3 supporting KPIs — same card, smaller type */}
+          {[
+            { label: 'Active Staff',       value: '847',   sub: '100% on duty',           ok: true  },
+            { label: 'Monthly Revenue',    value: '$2.45M',sub: '+18.3% vs July',          ok: true  },
+            { label: 'Bioreactors Active', value: '12/12', sub: 'STR-04 monitoring',       ok: false },
+          ].map(item => (
+            <div key={item.label} className="p-5 flex flex-col justify-between">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">{item.label}</p>
               <div>
-                <p className="text-3xl font-extrabold tracking-tight text-slate-900 leading-none">{card.value}</p>
-                <p className="text-[11px] text-slate-400 mt-1.5">{card.sub}</p>
-              </div>
-
-              {/* Delta — only two colors here: emerald positive, amber for "needs watch" */}
-              <p className={`text-[11px] font-bold flex items-center gap-1 ${card.positive ? 'text-emerald-600' : 'text-amber-600'}`}>
-                {card.positive ? <ArrowUpRight className="h-3 w-3" /> : <AlertTriangle className="h-3 w-3" />}
-                {card.delta}
-              </p>
-
-              {/* Bar — monochrome, proportional only */}
-              <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                <div className="h-full rounded-full bg-slate-400 transition-all duration-500" style={{ width: `${card.bar}%` }} />
+                <p className="text-2xl font-extrabold text-[#0e1f17] mt-2 leading-none tracking-tight">
+                  {item.value}
+                </p>
+                <p className={`text-[11px] font-semibold mt-1.5 ${item.ok ? 'text-emerald-600' : 'text-amber-600'}`}>
+                  {item.sub}
+                </p>
               </div>
             </div>
-          )
-        })}
+          ))}
+        </div>
       </div>
 
-      {/* ── MAIN GRID ───────────────────────────────────────────────────────── */}
-      <div className="grid gap-5 lg:grid-cols-3">
+      {/* ── MAIN GRID ──────────────────────────────────────────────────────
+          Rationale: 2/3 + 1/3 asymmetric — primary work area vs. supporting
+          feed. Gestalt proximity: related items grouped. The chart is the
+          centrepiece — given full 2/3 width and maximum breathing room.
+      */}
+      <div className="grid gap-6 lg:grid-cols-3">
 
-        {/* LEFT 2/3 */}
-        <div className="lg:col-span-2 space-y-5">
+        {/* LEFT 2/3 — Chart + Scientists */}
+        <div className="lg:col-span-2 space-y-6">
 
-          {/* BATCH OUTPUT CHART
-              Bars: slate-800 = completed, slate-300 = pending QC.
-              Active day uses slate-900 (darker) for completed, slate-400 for pending.
-              No green, no yellow — position and saturation carry the meaning.
+          {/* BATCH CHART
+              Rationale: Interactive bar with click-to-reveal detail.
+              Progressive Disclosure (Krug, 2000) — the total is shown on
+              hover/click, not always visible. Reduces cognitive load at rest.
+              Bars are intentionally minimal — two shades of slate, nothing else.
           */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+          <div className="bg-white rounded-2xl border border-[#e3e1da]">
+            <div className="px-6 pt-5 pb-0 flex items-start justify-between">
               <div>
-                <div className="flex items-center gap-2">
-                  <TrendingUp className="h-4 w-4 text-slate-400" />
-                  <h2 className="text-sm font-bold text-slate-900">Weekly Batch Output</h2>
-                </div>
-                <p className="text-[11px] text-slate-400 mt-0.5">GMP Lines 1–12 · Click a day for detail</p>
+                <h2 className="text-sm font-bold text-[#0e1f17]" style={{ fontFamily: 'Poppins, Inter, sans-serif' }}>
+                  Batch Output — This Week
+                </h2>
+                <p className="text-[11px] text-slate-400 mt-0.5">GMP Lines 1–12 · click a day to inspect</p>
               </div>
-              <div className="flex items-center gap-4 text-[11px] font-semibold text-slate-400">
+              <div className="flex items-center gap-4 text-[11px] text-slate-400">
                 <span className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-sm bg-slate-700" /> Released
+                  <span className="w-2 h-2 rounded-sm bg-[#0e1f17]" /> Released
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-sm bg-slate-300" /> Pending QC
+                  <span className="w-2 h-2 rounded-sm bg-slate-200" /> Pending QC
                 </span>
               </div>
             </div>
 
             <div className="px-6 pb-5 pt-4">
-              <div className="flex gap-2 sm:gap-4 items-end" style={{ height: 160 }}>
+              <div className="flex gap-3 sm:gap-5 items-end" style={{ height: 140 }}>
                 {weeklyBatches.map((d, i) => {
                   const isActive = activeDay === i
-                  const totalPx  = 160
-                  const compH    = Math.round((d.completed / maxBatch) * totalPx)
-                  const pendH    = Math.round((d.pending   / maxBatch) * totalPx)
-
+                  const compH = Math.round((d.completed / maxBatch) * 140)
+                  const pendH = Math.round((d.pending   / maxBatch) * 140)
                   return (
                     <div
                       key={d.day}
-                      className="flex-1 flex flex-col items-center gap-1 cursor-pointer group"
                       onClick={() => setActiveDay(isActive ? null : i)}
+                      className="flex-1 flex flex-col items-center gap-1 cursor-pointer group"
                     >
-                      <div className={`text-[10px] font-bold px-1.5 py-0.5 rounded mb-1 transition-all ${isActive ? 'bg-slate-900 text-white' : 'opacity-0 group-hover:opacity-100 bg-slate-100 text-slate-600'}`}>
+                      <span className={`text-[10px] font-bold mb-0.5 transition-opacity ${isActive ? 'opacity-100 text-[#0e1f17]' : 'opacity-0 group-hover:opacity-60 text-slate-500'}`}>
                         {d.completed + d.pending}
+                      </span>
+                      <div className="w-full flex flex-col justify-end gap-px overflow-hidden rounded-md" style={{ height: 140 }}>
+                        <div className={`w-full rounded-t-sm transition-colors ${isActive ? 'bg-slate-300' : 'bg-slate-200 group-hover:bg-slate-300'}`} style={{ height: pendH }} />
+                        <div className={`w-full transition-colors ${isActive ? 'bg-[#0e1f17]' : 'bg-slate-300 group-hover:bg-[#0e1f17]/80'}`} style={{ height: compH }} />
                       </div>
-                      <div className="w-full flex flex-col justify-end gap-px rounded overflow-hidden" style={{ height: totalPx }}>
-                        <div className={`w-full rounded-t-sm transition-all duration-300 ${isActive ? 'bg-slate-300' : 'bg-slate-200 group-hover:bg-slate-300'}`} style={{ height: pendH }} />
-                        <div className={`w-full transition-all duration-300 ${isActive ? 'bg-slate-800' : 'bg-slate-300 group-hover:bg-slate-700'}`} style={{ height: compH }} />
-                      </div>
-                      <span className={`text-[11px] font-bold mt-1.5 transition-colors ${isActive ? 'text-slate-900' : 'text-slate-400'}`}>{d.day}</span>
+                      <span className={`text-[10px] font-bold mt-1 ${isActive ? 'text-[#0e1f17]' : 'text-slate-400'}`}>{d.day}</span>
                     </div>
                   )
                 })}
               </div>
 
+              {/* Detail row — visible only when a day is selected */}
               {activeDay !== null && (
-                <div className="mt-4 p-3.5 bg-slate-50 rounded-xl border border-slate-200 flex justify-between text-xs animate-in fade-in slide-in-from-bottom-2 duration-200">
-                  <div className="flex gap-4">
-                    <span className="font-bold text-slate-700">{weeklyBatches[activeDay].day}</span>
+                <div className="mt-4 flex items-center justify-between pt-3.5 border-t border-[#e3e1da] animate-in fade-in duration-150">
+                  <div className="flex items-center gap-5 text-[11px]">
+                    <span className="font-extrabold text-[#0e1f17] uppercase tracking-wider">{todayData.day}</span>
                     <span className="flex items-center gap-1 text-slate-600">
                       <CheckCircle2 className="h-3 w-3 text-emerald-500" />
-                      {weeklyBatches[activeDay].completed} released
+                      {todayData.completed} released
                     </span>
                     <span className="flex items-center gap-1 text-slate-600">
                       <Clock className="h-3 w-3 text-amber-500" />
-                      {weeklyBatches[activeDay].pending} pending
+                      {todayData.pending} pending
                     </span>
                   </div>
-                  <span className="text-slate-400">
-                    Total: <strong className="text-slate-800">{weeklyBatches[activeDay].completed + weeklyBatches[activeDay].pending}</strong>
+                  <span className="text-[11px] text-slate-400">
+                    Total: <strong className="text-[#0e1f17]">{todayData.completed + todayData.pending}</strong>
                   </span>
                 </div>
               )}
             </div>
           </div>
 
-          {/* LEADERBOARD */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+          {/* LEADERBOARD
+              Rationale: Reduced to top 3 only. Research (Festinger, 1954) shows
+              social comparison is most effective with 3 reference points —
+              adding more dilutes the motivational effect. 
+              Rank order through position (Cleveland & McGill, 1984).
+              Progress bar width carries the comparison — no numbers needed.
+          */}
+          <div className="bg-white rounded-2xl border border-[#e3e1da]">
+            <div className="px-6 py-5 border-b border-[#e3e1da] flex items-center justify-between">
               <div>
-                <div className="flex items-center gap-2">
-                  <Microscope className="h-4 w-4 text-slate-400" />
-                  <h2 className="text-sm font-bold text-slate-900">Lead Scientists · This Week</h2>
-                </div>
-                <p className="text-[11px] text-slate-400 mt-0.5">Batch completions · ↑↓ vs last week</p>
+                <h2 className="text-sm font-bold text-[#0e1f17]" style={{ fontFamily: 'Poppins, Inter, sans-serif' }}>
+                  Lead Scientists
+                </h2>
+                <p className="text-[11px] text-slate-400 mt-0.5">Batch completions this week</p>
               </div>
-              <Link to="/hr/employees" className="text-[11px] font-bold text-slate-500 hover:text-slate-800 flex items-center gap-0.5 cursor-pointer transition-colors">
-                Full roster <ChevronRight className="h-3 w-3" />
+              <Link to="/hr" className="text-[11px] font-semibold text-slate-400 hover:text-[#0e1f17] flex items-center gap-0.5 transition-colors cursor-pointer">
+                All staff <ChevronRight className="h-3 w-3" />
               </Link>
             </div>
-            <div className="px-6 py-4 space-y-4">
-              {scientists.map(s => (
+            <div className="px-6 py-5 space-y-5">
+              {scientists.map((s, i) => (
                 <div key={s.rank} className="flex items-center gap-4">
-                  <span className="w-5 text-[11px] font-bold text-slate-300 tabular-nums shrink-0">#{s.rank}</span>
-                  {/* All avatars: slate backgrounds — no red/green/blue avatar rings */}
-                  <div className="h-9 w-9 rounded-full bg-slate-100 flex items-center justify-center font-extrabold text-xs text-slate-700 shrink-0">
+                  <span className="w-4 text-xs font-bold text-slate-200 shrink-0 tabular-nums text-right">
+                    {s.rank}
+                  </span>
+                  <div className="h-8 w-8 rounded-full bg-[#f6f5f1] border border-[#e3e1da] flex items-center justify-center text-[11px] font-extrabold text-[#0e1f17] shrink-0">
                     {s.initials}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-1">
-                      <p className="text-xs font-bold text-slate-900">{s.name}</p>
-                      <div className="flex items-center gap-1.5 shrink-0">
-                        <span className="text-xs font-extrabold text-slate-800 tabular-nums">{s.batches}</span>
-                        {/* Delta: emerald up, amber down — semantic only */}
-                        <span className={`text-[10px] font-bold ${s.delta >= 0 ? 'text-emerald-600' : 'text-amber-600'}`}>
-                          {s.delta >= 0 ? `+${s.delta}` : s.delta}
-                        </span>
-                      </div>
+                    <div className="flex items-baseline justify-between mb-1.5">
+                      <p className="text-xs font-bold text-[#0e1f17]">{s.name}</p>
+                      <span className="text-xs font-extrabold text-[#0e1f17] tabular-nums ml-2">{s.batches}</span>
                     </div>
-                    <p className="text-[10px] text-slate-400 mb-1.5">{s.role}</p>
-                    {/* Bar: all slate, proportional to top performer */}
-                    <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                    <div className="w-full h-1 bg-[#f0efeb] rounded-full overflow-hidden">
                       <div
-                        className="h-full rounded-full bg-slate-400 transition-all duration-500"
-                        style={{ width: `${(s.batches / scientists[0].batches) * 100}%` }}
+                        className="h-full rounded-full bg-[#0e1f17] transition-all duration-500"
+                        style={{ width: `${(s.batches / scientists[0].batches) * 100}%`, opacity: 1 - i * 0.25 }}
                       />
                     </div>
                   </div>
+                  <span className={`text-[10px] font-bold shrink-0 ${s.delta >= 0 ? 'text-emerald-600' : 'text-amber-600'}`}>
+                    {s.delta >= 0 ? `+${s.delta}` : s.delta}
+                  </span>
                 </div>
               ))}
             </div>
           </div>
         </div>
 
-        {/* RIGHT 1/3 */}
-        <div className="space-y-5">
-
-          {/* ACTIVITY FEED
-              Alert event: gets a faint bg-amber-50 background AND amber icon.
-              That's it — no other color differentiation needed.
-          */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-            <div className="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between">
-              <div>
-                <h2 className="text-sm font-bold text-slate-900">Live Activity</h2>
-                <p className="text-[11px] text-slate-400 mt-0.5">Real-time facility events</p>
-              </div>
-              <span className="flex items-center gap-1.5 text-[10px] font-bold px-2 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                Live
-              </span>
+        {/* RIGHT 1/3 — Activity only
+            Rationale: The right column is a single focused element.
+            Removed "Quick Access" — the sidebar already does navigation.
+            Duplication violates Don't Repeat Yourself in UI — it adds visual
+            mass without adding information (Tufte, "data-ink ratio", 1983).
+        */}
+        <div className="bg-white rounded-2xl border border-[#e3e1da] overflow-hidden h-fit">
+          <div className="px-5 py-4 border-b border-[#e3e1da] flex items-center justify-between">
+            <div>
+              <h2 className="text-sm font-bold text-[#0e1f17]" style={{ fontFamily: 'Poppins, Inter, sans-serif' }}>
+                Activity
+              </h2>
+              <p className="text-[11px] text-slate-400 mt-0.5">Live facility events</p>
             </div>
-            <div className="divide-y divide-slate-100">
-              {activities.map(a => {
-                const Icon = a.icon
-                return (
-                  <div key={a.id} className={`px-5 py-3.5 flex items-start gap-3 hover:bg-slate-50 transition-colors ${a.alert ? 'bg-amber-50/40' : ''}`}>
-                    <div className={`h-7 w-7 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${a.alert ? 'bg-amber-100' : 'bg-slate-100'}`}>
-                      <Icon className={`h-3.5 w-3.5 ${a.alert ? 'text-amber-600' : 'text-slate-500'}`} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className={`text-xs font-bold leading-snug ${a.alert ? 'text-amber-900' : 'text-slate-900'}`}>{a.title}</p>
-                      <p className="text-[11px] text-slate-400 mt-0.5 leading-snug">{a.detail}</p>
-                      <p className="text-[10px] text-slate-300 font-medium mt-1">{a.time}</p>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
+            <span className="flex items-center gap-1.5 text-[10px] font-bold px-2 py-1 rounded-full bg-emerald-50 text-emerald-700">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              Live
+            </span>
           </div>
 
-          {/* QUICK ACCESS */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-            <div className="px-5 py-3.5 border-b border-slate-100">
-              <h2 className="text-sm font-bold text-slate-900">Quick Access</h2>
-            </div>
-            <div className="divide-y divide-slate-100">
-              {[
-                { to: '/finance',     icon: DollarSign, label: 'Finance & Treasury', sub: '$23.3M Q3 · live' },
-                { to: '/hr',          icon: Users,       label: 'HR & Workforce',     sub: '847 active staff' },
-                { to: '/procurement', icon: ShieldCheck, label: 'Procurement',        sub: '2 POs pending' },
-              ].map(({ to, icon: Icon, label, sub }) => (
-                <Link key={to} to={to} className="px-5 py-3.5 flex items-center gap-3 hover:bg-slate-50 transition-colors group cursor-pointer">
-                  <div className="h-7 w-7 rounded-xl bg-slate-100 flex items-center justify-center text-slate-500 group-hover:bg-[#c8102e] group-hover:text-white transition-all duration-200 shrink-0">
-                    <Icon className="h-3.5 w-3.5" />
-                  </div>
+          {/*
+            Alert item has amber bg — the ONE color break in this column.
+            Figure-ground (Gestalt): the amber item "pops" precisely because
+            everything else is white. If multiple items were amber, none would.
+          */}
+          <div className="divide-y divide-[#e3e1da]">
+            {activities.map(a => (
+              <div key={a.id} className={`px-5 py-3.5 ${a.alert ? 'bg-amber-50/60' : 'hover:bg-[#f6f5f1]'} transition-colors`}>
+                <div className="flex items-start gap-2.5">
+                  {a.alert
+                    ? <AlertTriangle className="h-3.5 w-3.5 text-amber-500 shrink-0 mt-0.5" />
+                    : <span className="w-1.5 h-1.5 rounded-full bg-slate-300 shrink-0 mt-1.5" />
+                  }
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-bold text-slate-900">{label}</p>
-                    <p className="text-[11px] text-slate-400 mt-0.5">{sub}</p>
+                    <p className={`text-[11px] font-semibold leading-snug ${a.alert ? 'text-amber-900' : 'text-[#0e1f17]'}`}>
+                      {a.title}
+                    </p>
+                    <p className="text-[10px] text-slate-400 mt-0.5">{a.detail}</p>
+                    <p className="text-[10px] text-slate-300 mt-1 font-medium">{a.time} ago</p>
                   </div>
-                  <ChevronRight className="h-3.5 w-3.5 text-slate-300 group-hover:text-slate-500 group-hover:translate-x-0.5 transition-all" />
-                </Link>
-              ))}
-            </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
