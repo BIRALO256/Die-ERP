@@ -16,6 +16,7 @@ import {
 import { useState, useEffect } from 'react'
 import { cn } from '../../shared/utils'
 import { useSidebarStore } from '../../shared/stores/sidebar-store'
+import { useFacilityStore } from '../../shared/stores/facility-store'
 import deiLogo from '../../assets/dei-biopharma-logo.png'
 
 interface NavItem {
@@ -71,6 +72,8 @@ interface SidebarProps {
 
 export function Sidebar({ isMobile = false }: SidebarProps) {
   const { isCollapsed, toggleCollapsed, closeMobile } = useSidebarStore()
+  const { getActiveFacility } = useFacilityStore()
+  const activeFacility = getActiveFacility()
   const [expandedItems, setExpandedItems] = useState<string[]>([])
   const [activeFlyout, setActiveFlyout] = useState<string | null>(null)
   const location = useLocation()
@@ -116,22 +119,22 @@ export function Sidebar({ isMobile = false }: SidebarProps) {
             className={cn(
               "w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-all duration-150 group cursor-pointer",
               isParentActive
-                ? "text-[#0e1f17] bg-[#143d1d]/10 font-bold"
+                ? "text-foreground bg-accent/10 font-bold"
                 : isExpanded
-                ? "text-[#0e1f17] bg-[#f6f5f1]"
-                : "text-slate-600 hover:text-[#0e1f17] hover:bg-[#f6f5f1]"
+                ? "text-foreground bg-background"
+                : "text-slate-600 hover:text-foreground hover:bg-background"
             )}
           >
             <div className="flex items-center space-x-3 min-w-0">
               <item.icon className={cn(
                 "h-4 w-4 shrink-0 transition-colors",
-                isParentActive ? "text-[#143d1d]" : "text-slate-400 group-hover:text-[#0e1f17]"
+                isParentActive ? "text-accent" : "text-slate-400 group-hover:text-foreground"
               )} />
               <span className="truncate">{item.title}</span>
             </div>
             <div className="flex items-center space-x-1.5 shrink-0 ml-2">
               {item.badge && (
-                <span className="px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-[#c8102e]/10 text-[#c8102e]">
+                <span className="px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-primary/10 text-primary">
                   {item.badge}
                 </span>
               )}
@@ -145,7 +148,7 @@ export function Sidebar({ isMobile = false }: SidebarProps) {
           </button>
           
           {isExpanded && (
-            <div className="ml-4 pl-3 my-1 space-y-0.5 border-l border-[#143d1d]/20 animate-in fade-in slide-in-from-top-1 duration-150">
+            <div className="ml-4 pl-3 my-1 space-y-0.5 border-l border-accent/20 animate-in fade-in slide-in-from-top-1 duration-150">
               {item.children?.map(child => renderExpandedNav(child, level + 1))}
             </div>
           )}
@@ -163,8 +166,8 @@ export function Sidebar({ isMobile = false }: SidebarProps) {
           cn(
             'flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-all duration-150 group',
             isActive 
-              ? 'bg-[#143d1d] text-white shadow-sm font-bold' 
-              : 'text-slate-600 hover:text-[#0e1f17] hover:bg-[#f6f5f1]'
+              ? 'bg-accent text-white shadow-sm font-bold' 
+              : 'text-slate-600 hover:text-foreground hover:bg-background'
           )
         }
       >
@@ -173,14 +176,14 @@ export function Sidebar({ isMobile = false }: SidebarProps) {
             <div className="flex items-center space-x-3 min-w-0">
               <item.icon className={cn(
                 "h-4 w-4 shrink-0",
-                isActive ? "text-white" : "text-slate-400 group-hover:text-[#0e1f17]"
+                isActive ? "text-white" : "text-slate-400 group-hover:text-foreground"
               )} />
               <span className="truncate">{item.title}</span>
             </div>
             {item.badge && (
               <span className={cn(
                 "px-1.5 py-0.5 text-[10px] font-bold rounded-full ml-2 shrink-0",
-                isActive ? "bg-white/20 text-white" : "bg-[#c8102e]/10 text-[#c8102e]"
+                isActive ? "bg-white/20 text-white" : "bg-primary/10 text-primary"
               )}>
                 {item.badge}
               </span>
@@ -210,14 +213,14 @@ export function Sidebar({ isMobile = false }: SidebarProps) {
             className={cn(
               "w-11 h-11 mx-auto flex items-center justify-center rounded-xl transition-all relative cursor-pointer",
               isParentActive || isFlyoutOpen
-                ? "bg-[#c8102e]/10 text-[#c8102e] font-bold"
+                ? "bg-primary/10 text-primary font-bold"
                 : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
             )}
             aria-label={item.title}
           >
             <item.icon className="h-5 w-5" />
             {item.badge && (
-              <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-[#c8102e] ring-2 ring-white"></span>
+              <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-primary ring-2 ring-white"></span>
             )}
           </button>
 
@@ -227,7 +230,7 @@ export function Sidebar({ isMobile = false }: SidebarProps) {
               <div className="px-3 py-1.5 border-b border-slate-100 flex items-center justify-between mb-1">
                 <span className="text-xs font-bold text-slate-900">{item.title}</span>
                 {item.badge && (
-                  <span className="px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-[#c8102e]/10 text-[#c8102e]">
+                  <span className="px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-primary/10 text-primary">
                     {item.badge}
                   </span>
                 )}
@@ -243,7 +246,7 @@ export function Sidebar({ isMobile = false }: SidebarProps) {
                       cn(
                         'flex items-center space-x-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-colors',
                         isActive
-                          ? 'bg-[#c8102e] text-white font-semibold shadow-xs'
+                          ? 'bg-primary text-white font-semibold shadow-xs'
                           : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                       )
                     }
@@ -268,7 +271,7 @@ export function Sidebar({ isMobile = false }: SidebarProps) {
             cn(
               'w-11 h-11 mx-auto flex items-center justify-center rounded-xl transition-all relative',
               isActive 
-                ? 'bg-[#c8102e] text-white shadow-sm shadow-[#c8102e]/30' 
+                ? 'bg-primary text-white shadow-sm shadow-primary/30' 
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             )
           }
@@ -280,7 +283,7 @@ export function Sidebar({ isMobile = false }: SidebarProps) {
               {item.badge && (
                 <span className={cn(
                   "absolute top-1.5 right-1.5 h-2 w-2 rounded-full ring-2 ring-white",
-                  isActive ? "bg-white" : "bg-[#c8102e]"
+                  isActive ? "bg-white" : "bg-primary"
                 )}></span>
               )}
             </>
@@ -298,19 +301,19 @@ export function Sidebar({ isMobile = false }: SidebarProps) {
   return (
     <aside 
       className={cn(
-        "bg-white border-r border-[#e3e1da] flex flex-col h-screen select-none shrink-0 transition-all duration-300 ease-in-out",
+        "bg-white border-r border-border flex flex-col h-screen select-none shrink-0 transition-all duration-300 ease-in-out",
         collapsed ? "w-20" : "w-68"
       )}
     >
       {/* Brand Header - Fixed */}
       <div className={cn(
-        "h-16 shrink-0 border-b border-[#e3e1da] flex items-center transition-all duration-300",
+        "h-16 shrink-0 border-b border-border flex items-center transition-all duration-300",
         collapsed ? "justify-center px-2" : "justify-between px-5"
       )}>
         {collapsed ? (
           /* Chopped Logo Emblem for Collapsed View */
           <div 
-            className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-center overflow-hidden shrink-0 shadow-xs hover:border-[#c8102e]/40 transition-all cursor-pointer"
+            className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-center overflow-hidden shrink-0 shadow-xs hover:border-primary/40 transition-all cursor-pointer"
             onClick={toggleCollapsed}
             title="Expand Sidebar (Dei BioPharma)"
           >
@@ -366,29 +369,29 @@ export function Sidebar({ isMobile = false }: SidebarProps) {
 
       {/* Facility & Compliance Status Footer - Fixed */}
       <div className={cn(
-        "shrink-0 border-t border-[#e3e1da] bg-white transition-all duration-300",
+        "shrink-0 border-t border-border bg-white transition-all duration-300",
         collapsed ? "p-3 flex flex-col items-center" : "p-4"
       )}>
         {collapsed ? (
           <div 
-            className="w-10 h-10 rounded-xl bg-[#143d1d]/10 border border-[#143d1d]/20 flex items-center justify-center cursor-pointer group relative"
-            title="GMP Certified Plant • Matugga Facility"
+            className="w-10 h-10 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center cursor-pointer group relative"
+            title={`${activeFacility.badgeText || 'Certified Plant'} • ${activeFacility.location}`}
           >
-            <ShieldCheck className="h-5 w-5 text-[#143d1d]" />
-            <div className="absolute left-full bottom-2 ml-2.5 px-3 py-2 bg-[#0e1f17] text-white text-xs rounded-xl shadow-xl whitespace-nowrap pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-50">
-              <p className="font-bold text-emerald-400">GMP Certified Plant</p>
-              <p className="text-[11px] text-slate-300">Matugga Facility • Wakiso</p>
+            <ShieldCheck className="h-5 w-5 text-accent" />
+            <div className="absolute left-full bottom-2 ml-2.5 px-3 py-2 bg-foreground text-white text-xs rounded-xl shadow-xl whitespace-nowrap pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-50">
+              <p className="font-bold text-emerald-400">{activeFacility.badgeText || 'Facility Status'}</p>
+              <p className="text-[11px] text-slate-300">{activeFacility.location} • {activeFacility.region}</p>
             </div>
           </div>
         ) : (
           <div>
             <div className="flex items-center space-x-2 text-xs mb-1">
-              <ShieldCheck className="h-4 w-4 text-[#143d1d] shrink-0" />
-              <span className="font-bold text-[#0e1f17] truncate">GMP Certified Plant</span>
+              <ShieldCheck className="h-4 w-4 text-accent shrink-0" />
+              <span className="font-bold text-foreground truncate">{activeFacility.badgeText || 'Certified Plant'}</span>
             </div>
             <div className="flex items-center space-x-1.5 text-[11px] text-slate-400">
               <Building className="h-3.5 w-3.5 shrink-0" />
-              <span className="truncate">Matugga Facility • Wakiso</span>
+              <span className="truncate">{activeFacility.location} • {activeFacility.region}</span>
             </div>
           </div>
         )}

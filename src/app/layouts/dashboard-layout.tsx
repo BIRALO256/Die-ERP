@@ -9,7 +9,7 @@ export function DashboardLayout() {
   const { isMobileOpen, closeMobile } = useSidebarStore()
 
   return (
-    <div className="h-screen w-full overflow-hidden bg-[#f6f5f1] flex text-[#0e1f17] antialiased selection:bg-[#c8102e]/10 selection:text-[#c8102e] relative">
+    <div className="h-screen w-full overflow-hidden bg-white flex text-foreground antialiased selection:bg-primary/10 selection:text-primary relative">
       {/* Desktop Persistent Fixed Sidebar (pinned h-screen, only internal nav list scrolls if long) */}
       <div className="hidden lg:flex shrink-0 h-screen z-20 select-none">
         <Sidebar isMobile={false} />
@@ -40,12 +40,12 @@ export function DashboardLayout() {
         <Header />
         
         {/* Page Content Viewport - Only this scrolls */}
-        <main className="flex-1 overflow-y-auto bg-[#f6f5f1] min-w-0">
+        <main className="flex-1 overflow-y-auto bg-white min-w-0">
           <div className="p-4 sm:p-6 md:p-8 max-w-7xl mx-auto">
             <Suspense
               fallback={
                 <div className="flex items-center justify-center h-96">
-                  <div className="animate-spin rounded-full h-8 w-8 border-2 border-slate-200 border-t-[#c8102e]"></div>
+                  <div className="animate-spin rounded-full h-8 w-8 border-2 border-slate-200 border-t-primary"></div>
                 </div>
               }
             >

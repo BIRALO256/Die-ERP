@@ -9,6 +9,7 @@ import {
   Clock,
   ChevronRight,
 } from 'lucide-react'
+import { useFacilityStore } from '../../../shared/stores/facility-store'
 
 // ─── DATA ─────────────────────────────────────────────────────────────────────
 const weeklyBatches = [
@@ -38,6 +39,8 @@ const scientists = [
 
 export default function DashboardPage() {
   const [activeDay, setActiveDay] = useState<number | null>(4)
+  const { getActiveFacility } = useFacilityStore()
+  const activeFacility = getActiveFacility()
 
   const todayData = weeklyBatches[activeDay ?? 4]
 
@@ -53,22 +56,21 @@ export default function DashboardPage() {
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
         <div>
           <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1">
-            Matugga GMP Plant · Tuesday, Aug 19
+            {activeFacility.name} · Tuesday, Aug 19
           </p>
-          <h1 className="text-3xl font-bold tracking-tight text-[#0e1f17] leading-none" style={{ fontFamily: 'Poppins, Inter, sans-serif' }}>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground leading-none" style={{ fontFamily: 'Poppins, Inter, sans-serif' }}>
             Good morning, Dr. Nakato
           </h1>
           <p className="text-sm text-slate-400 mt-2">
-            12 bioreactors running ·{' '}
-            <span className="text-amber-600 font-semibold">1 temp deviation monitored</span>
+            {activeFacility.headlineStatus || 'Operational monitoring active'}
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <button className="flex items-center gap-1.5 px-4 py-2 bg-[#c8102e] hover:bg-[#a80e27] text-white text-xs font-bold rounded-xl shadow-sm transition-all cursor-pointer">
+          <button className="flex items-center gap-1.5 px-4 py-2 bg-primary hover:bg-primary-hover text-white text-xs font-bold rounded-xl shadow-sm transition-all cursor-pointer">
             <Plus className="h-3.5 w-3.5" />
             New Batch
           </button>
-          <button className="flex items-center gap-1.5 px-3.5 py-2 border border-[#e3e1da] bg-white hover:bg-[#f6f5f1] text-slate-600 text-xs font-semibold rounded-xl transition-all cursor-pointer">
+          <button className="flex items-center gap-1.5 px-3.5 py-2 border border-border bg-background hover:bg-muted text-slate-600 text-xs font-semibold rounded-xl transition-all cursor-pointer">
             <Upload className="h-3.5 w-3.5 text-slate-400" />
             QC Report
           </button>
@@ -85,7 +87,7 @@ export default function DashboardPage() {
           Miller's Law: 4 total numbers (1 hero + 3 secondary) stays within 
           the 7±2 chunk limit for immediate comprehension.
       */}
-      <div className="bg-white rounded-2xl border border-[#e3e1da] overflow-hidden">
+      <div className="bg-[#f6f5f1] rounded-2xl border border-[#e3e1da] overflow-hidden">
         <div className="grid sm:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-[#e3e1da]">
 
           {/* Hero — weekly batch output */}
@@ -94,7 +96,7 @@ export default function DashboardPage() {
               <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
                 This Week
               </p>
-              <p className="text-4xl font-extrabold text-[#0e1f17] mt-2 leading-none tracking-tight">
+              <p className="text-4xl font-extrabold text-foreground mt-2 leading-none tracking-tight">
                 {weeklyBatches.reduce((s, d) => s + d.completed, 0)}
               </p>
               <p className="text-xs font-semibold text-slate-400 mt-1.5">batches released</p>
@@ -107,14 +109,14 @@ export default function DashboardPage() {
 
           {/* 3 supporting KPIs — same card, smaller type */}
           {[
-            { label: 'Active Staff',       value: '847',   sub: '100% on duty',           ok: true  },
-            { label: 'Monthly Revenue',    value: '$2.45M',sub: '+18.3% vs July',          ok: true  },
-            { label: 'Bioreactors Active', value: '12/12', sub: 'STR-04 monitoring',       ok: false },
+            { label: 'Active Staff',       value: String(activeFacility.staffOnDuty || 847), sub: '100% on duty',           ok: true  },
+            { label: 'Monthly Revenue',    value: '$2.45M',                                  sub: '+18.3% vs July',          ok: true  },
+            { label: activeFacility.type === 'MANUFACTURING' ? 'Bioreactors Active' : 'Operating Lines', value: `${activeFacility.activeLinesCount || 12}/${activeFacility.activeLinesCount || 12}`, sub: 'Active monitoring', ok: true },
           ].map(item => (
             <div key={item.label} className="p-5 flex flex-col justify-between">
               <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">{item.label}</p>
               <div>
-                <p className="text-2xl font-extrabold text-[#0e1f17] mt-2 leading-none tracking-tight">
+                <p className="text-2xl font-extrabold text-foreground mt-2 leading-none tracking-tight">
                   {item.value}
                 </p>
                 <p className={`text-[11px] font-semibold mt-1.5 ${item.ok ? 'text-emerald-600' : 'text-amber-600'}`}>
@@ -142,10 +144,10 @@ export default function DashboardPage() {
               hover/click, not always visible. Reduces cognitive load at rest.
               Bars are intentionally minimal — two shades of slate, nothing else.
           */}
-          <div className="bg-white rounded-2xl border border-[#e3e1da]">
+          <div className="bg-[#f6f5f1] rounded-2xl border border-[#e3e1da]">
             <div className="px-6 pt-5 pb-0 flex items-start justify-between">
               <div>
-                <h2 className="text-sm font-bold text-[#0e1f17]" style={{ fontFamily: 'Poppins, Inter, sans-serif' }}>
+                <h2 className="text-sm font-bold text-foreground" style={{ fontFamily: 'Poppins, Inter, sans-serif' }}>
                   Batch Output — This Week
                 </h2>
                 <p className="text-[11px] text-slate-400 mt-0.5">GMP Lines 1–12 · click a day to inspect</p>
@@ -187,9 +189,9 @@ export default function DashboardPage() {
 
               {/* Detail row — visible only when a day is selected */}
               {activeDay !== null && (
-                <div className="mt-4 flex items-center justify-between pt-3.5 border-t border-[#e3e1da] animate-in fade-in duration-150">
+                <div className="mt-4 flex items-center justify-between pt-3.5 border-t border-border animate-in fade-in duration-150">
                   <div className="flex items-center gap-5 text-[11px]">
-                    <span className="font-extrabold text-[#0e1f17] uppercase tracking-wider">{todayData.day}</span>
+                    <span className="font-extrabold text-foreground uppercase tracking-wider">{todayData.day}</span>
                     <span className="flex items-center gap-1 text-slate-600">
                       <CheckCircle2 className="h-3 w-3 text-emerald-500" />
                       {todayData.completed} released
@@ -200,7 +202,7 @@ export default function DashboardPage() {
                     </span>
                   </div>
                   <span className="text-[11px] text-slate-400">
-                    Total: <strong className="text-[#0e1f17]">{todayData.completed + todayData.pending}</strong>
+                    Total: <strong className="text-foreground">{todayData.completed + todayData.pending}</strong>
                   </span>
                 </div>
               )}
@@ -214,15 +216,15 @@ export default function DashboardPage() {
               Rank order through position (Cleveland & McGill, 1984).
               Progress bar width carries the comparison — no numbers needed.
           */}
-          <div className="bg-white rounded-2xl border border-[#e3e1da]">
-            <div className="px-6 py-5 border-b border-[#e3e1da] flex items-center justify-between">
+          <div className="bg-[#f6f5f1] rounded-2xl border border-[#e3e1da]">
+            <div className="px-6 py-5 border-b border-border flex items-center justify-between">
               <div>
-                <h2 className="text-sm font-bold text-[#0e1f17]" style={{ fontFamily: 'Poppins, Inter, sans-serif' }}>
+                <h2 className="text-sm font-bold text-foreground" style={{ fontFamily: 'Poppins, Inter, sans-serif' }}>
                   Lead Scientists
                 </h2>
                 <p className="text-[11px] text-slate-400 mt-0.5">Batch completions this week</p>
               </div>
-              <Link to="/hr" className="text-[11px] font-semibold text-slate-400 hover:text-[#0e1f17] flex items-center gap-0.5 transition-colors cursor-pointer">
+              <Link to="/hr" className="text-[11px] font-semibold text-slate-400 hover:text-foreground flex items-center gap-0.5 transition-colors cursor-pointer">
                 All staff <ChevronRight className="h-3 w-3" />
               </Link>
             </div>
@@ -232,17 +234,17 @@ export default function DashboardPage() {
                   <span className="w-4 text-xs font-bold text-slate-200 shrink-0 tabular-nums text-right">
                     {s.rank}
                   </span>
-                  <div className="h-8 w-8 rounded-full bg-[#f6f5f1] border border-[#e3e1da] flex items-center justify-center text-[11px] font-extrabold text-[#0e1f17] shrink-0">
+                  <div className="h-8 w-8 rounded-full bg-background border border-border flex items-center justify-center text-[11px] font-extrabold text-foreground shrink-0">
                     {s.initials}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-baseline justify-between mb-1.5">
-                      <p className="text-xs font-bold text-[#0e1f17]">{s.name}</p>
-                      <span className="text-xs font-extrabold text-[#0e1f17] tabular-nums ml-2">{s.batches}</span>
+                      <p className="text-xs font-bold text-foreground">{s.name}</p>
+                      <span className="text-xs font-extrabold text-foreground tabular-nums ml-2">{s.batches}</span>
                     </div>
-                    <div className="w-full h-1 bg-[#f0efeb] rounded-full overflow-hidden">
+                    <div className="w-full h-1 bg-secondary rounded-full overflow-hidden">
                       <div
-                        className="h-full rounded-full bg-[#0e1f17] transition-all duration-500"
+                        className="h-full rounded-full bg-foreground transition-all duration-500"
                         style={{ width: `${(s.batches / scientists[0].batches) * 100}%`, opacity: 1 - i * 0.25 }}
                       />
                     </div>
@@ -262,7 +264,7 @@ export default function DashboardPage() {
             Duplication violates Don't Repeat Yourself in UI — it adds visual
             mass without adding information (Tufte, "data-ink ratio", 1983).
         */}
-        <div className="bg-white rounded-2xl border border-[#e3e1da] overflow-hidden h-fit">
+        <div className="bg-[#f6f5f1] rounded-2xl border border-[#e3e1da] overflow-hidden h-fit">
           <div className="px-5 py-4 border-b border-[#e3e1da] flex items-center justify-between">
             <div>
               <h2 className="text-sm font-bold text-[#0e1f17]" style={{ fontFamily: 'Poppins, Inter, sans-serif' }}>
@@ -281,16 +283,16 @@ export default function DashboardPage() {
             Figure-ground (Gestalt): the amber item "pops" precisely because
             everything else is white. If multiple items were amber, none would.
           */}
-          <div className="divide-y divide-[#e3e1da]">
+          <div className="divide-y divide-border">
             {activities.map(a => (
-              <div key={a.id} className={`px-5 py-3.5 ${a.alert ? 'bg-amber-50/60' : 'hover:bg-[#f6f5f1]'} transition-colors`}>
+              <div key={a.id} className={`px-5 py-3.5 ${a.alert ? 'bg-amber-50/60' : 'hover:bg-muted/50'} transition-colors`}>
                 <div className="flex items-start gap-2.5">
                   {a.alert
                     ? <AlertTriangle className="h-3.5 w-3.5 text-amber-500 shrink-0 mt-0.5" />
                     : <span className="w-1.5 h-1.5 rounded-full bg-slate-300 shrink-0 mt-1.5" />
                   }
                   <div className="flex-1 min-w-0">
-                    <p className={`text-[11px] font-semibold leading-snug ${a.alert ? 'text-amber-900' : 'text-[#0e1f17]'}`}>
+                    <p className={`text-[11px] font-semibold leading-snug ${a.alert ? 'text-amber-900' : 'text-foreground'}`}>
                       {a.title}
                     </p>
                     <p className="text-[10px] text-slate-400 mt-0.5">{a.detail}</p>
