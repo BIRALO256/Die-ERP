@@ -366,7 +366,7 @@ export function Sidebar({ isMobile = false }: SidebarProps) {
 
       {/* Facility & Compliance Status Footer - Fixed */}
       <div className={cn(
-        "shrink-0 border-t border-[#e3e1da] bg-[#f6f5f1] transition-all duration-300",
+        "shrink-0 border-t border-[#e3e1da] bg-white transition-all duration-300",
         collapsed ? "p-3 flex flex-col items-center" : "p-4"
       )}>
         {collapsed ? (
