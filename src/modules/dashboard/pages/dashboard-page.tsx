@@ -8,8 +8,10 @@ import {
   AlertTriangle,
   Clock,
   ChevronRight,
+  Lock
 } from 'lucide-react'
 import { useFacilityStore } from '../../../shared/stores/facility-store'
+import { usePermission } from '../../../shared/hooks/use-permission'
 
 // ─── DATA ─────────────────────────────────────────────────────────────────────
 const weeklyBatches = [
@@ -41,85 +43,103 @@ export default function DashboardPage() {
   const [activeDay, setActiveDay] = useState<number | null>(4)
   const { getActiveFacility } = useFacilityStore()
   const activeFacility = getActiveFacility()
+  const { can, roleTitle, clearanceBadgeText } = usePermission()
 
   const todayData = weeklyBatches[activeDay ?? 4]
 
+  const canCreateBatch = can('batch:create')
+  const canReleaseQc = can('batch:release_qc') || can('clinical:inspect_assays')
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-5">
 
       {/* ── HEADER ─────────────────────────────────────────────────────────
-          Rationale: Greeting + ONE action button. Everything else removed.
-          Fitts's Law — primary CTA is the only red element in view.
-          The greeting establishes context; the subtitle is the only status
-          line the user needs before scanning down.
+          Compact enterprise header: Title + active facility context on left, actions on right.
       */}
-      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-        <div>
-          <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1">
-            {activeFacility.name} · Tuesday, Aug 19
-          </p>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground leading-none" style={{ fontFamily: 'Poppins, Inter, sans-serif' }}>
-            Good morning, Dr. Nakato
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <h1 className="text-lg font-bold text-foreground tracking-tight" style={{ fontFamily: 'Poppins, Inter, sans-serif' }}>
+            Facility Operations
           </h1>
-          <p className="text-sm text-slate-400 mt-2">
-            {activeFacility.headlineStatus || 'Operational monitoring active'}
-          </p>
+          <span className="text-slate-300">·</span>
+          <span className="text-xs text-slate-500 font-medium">
+            {activeFacility.name}
+          </span>
+          <span className="text-[10px] font-semibold text-accent bg-accent/10 px-2 py-0.5 rounded-md">
+            {roleTitle}
+          </span>
         </div>
+
         <div className="flex items-center gap-2 shrink-0">
-          <button className="flex items-center gap-1.5 px-4 py-2 bg-primary hover:bg-primary-hover text-white text-xs font-bold rounded-xl shadow-sm transition-all cursor-pointer">
-            <Plus className="h-3.5 w-3.5" />
-            New Batch
-          </button>
-          <button className="flex items-center gap-1.5 px-3.5 py-2 border border-border bg-background hover:bg-muted text-slate-600 text-xs font-semibold rounded-xl transition-all cursor-pointer">
-            <Upload className="h-3.5 w-3.5 text-slate-400" />
-            QC Report
-          </button>
+          {canCreateBatch ? (
+            <button className="flex items-center gap-1.5 px-3 py-1.5 bg-primary hover:bg-primary-hover text-white text-xs font-semibold rounded-lg shadow-2xs transition-all cursor-pointer">
+              <Plus className="h-3.5 w-3.5" />
+              New Batch
+            </button>
+          ) : (
+            <button 
+              disabled 
+              title="Batch initiation restricted to certified Manufacturing Plants"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 text-slate-400 text-xs font-medium rounded-lg border border-slate-200 cursor-not-allowed opacity-75"
+            >
+              <Lock className="h-3 w-3 text-slate-400" />
+              New Batch (Restricted)
+            </button>
+          )}
+
+          {canReleaseQc ? (
+            <button className="flex items-center gap-1.5 px-3 py-1.5 border border-border bg-background hover:bg-muted text-slate-600 text-xs font-semibold rounded-lg transition-all cursor-pointer">
+              <Upload className="h-3.5 w-3.5 text-slate-400" />
+              QC Report
+            </button>
+          ) : (
+            <button 
+              disabled
+              title="QC sign-off restricted to QA or Clinical staff"
+              className="flex items-center gap-1.5 px-3 py-1.5 border border-border bg-slate-50 text-slate-400 text-xs font-medium rounded-lg cursor-not-allowed opacity-60"
+            >
+              QC Report
+            </button>
+          )}
         </div>
       </div>
 
-      {/* ── HERO METRIC + 3 SECONDARY ──────────────────────────────────────
-          Rationale: Inverted Pyramid principle (journalism → dashboard design).
-          ONE dominant number answers "how are we doing today?" immediately.
-          3 supporting numbers sit below it at smaller scale — hierarchy
-          through SIZE alone, not color or decoration.
-          
-          Fitts's Law: the primary metric is the largest element on the page.
-          Miller's Law: 4 total numbers (1 hero + 3 secondary) stays within 
-          the 7±2 chunk limit for immediate comprehension.
+      {/* ── COMPACT KPI METRIC STRIP ───────────────────────────────────────
+          High-density layout: sleek 75px card strip with compact typography.
       */}
-      <div className="bg-[#f6f5f1] rounded-2xl border border-[#e3e1da] overflow-hidden">
-        <div className="grid sm:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-[#e3e1da]">
+      <div className="bg-[#f6f5f1] rounded-xl border border-border overflow-hidden">
+        <div className="grid sm:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-border">
 
           {/* Hero — weekly batch output */}
-          <div className="sm:col-span-1 p-5 flex flex-col justify-between">
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                This Week
-              </p>
-              <p className="text-4xl font-extrabold text-foreground mt-2 leading-none tracking-tight">
-                {weeklyBatches.reduce((s, d) => s + d.completed, 0)}
-              </p>
-              <p className="text-xs font-semibold text-slate-400 mt-1.5">batches released</p>
+          <div className="sm:col-span-1 p-3.5 flex flex-col justify-between">
+            <div className="flex items-center justify-between">
+              <p className="text-[11px] font-medium text-slate-500">Weekly Output</p>
+              <div className="flex items-center gap-1 text-[11px] font-bold text-emerald-600">
+                <ArrowUpRight className="h-3 w-3" />
+                +8%
+              </div>
             </div>
-            <div className="mt-4 flex items-center gap-1.5 text-[11px] font-bold text-emerald-600">
-              <ArrowUpRight className="h-3.5 w-3.5" />
-              +8% vs last week
+            <div className="mt-1">
+              <span className="text-2xl font-bold text-foreground leading-none tracking-tight tabular-nums">
+                {weeklyBatches.reduce((s, d) => s + d.completed, 0)}
+              </span>
+              <span className="text-[11px] text-slate-400 ml-1.5">batches released</span>
             </div>
           </div>
 
-          {/* 3 supporting KPIs — same card, smaller type */}
+          {/* 3 supporting KPIs */}
           {[
-            { label: 'Active Staff',       value: String(activeFacility.staffOnDuty || 847), sub: '100% on duty',           ok: true  },
-            { label: 'Monthly Revenue',    value: '$2.45M',                                  sub: '+18.3% vs July',          ok: true  },
+            { label: 'Active Staff',       value: String(activeFacility.staffOnDuty || 847), sub: '100% on duty',     ok: true  },
+            { label: 'Monthly Revenue',    value: '$2.45M',                                  sub: '+18.3% vs July',    ok: true  },
             { label: activeFacility.type === 'MANUFACTURING' ? 'Bioreactors Active' : 'Operating Lines', value: `${activeFacility.activeLinesCount || 12}/${activeFacility.activeLinesCount || 12}`, sub: 'Active monitoring', ok: true },
           ].map(item => (
-            <div key={item.label} className="p-5 flex flex-col justify-between">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">{item.label}</p>
-              <div>
-                <p className="text-2xl font-extrabold text-foreground mt-2 leading-none tracking-tight">
+            <div key={item.label} className="p-3.5 flex flex-col justify-between">
+              <p className="text-[11px] font-medium text-slate-500">{item.label}</p>
+              <div className="mt-1 flex items-baseline justify-between gap-1">
+                <p className="text-xl font-bold text-foreground leading-none tracking-tight tabular-nums">
                   {item.value}
                 </p>
-                <p className={`text-[11px] font-semibold mt-1.5 ${item.ok ? 'text-emerald-600' : 'text-amber-600'}`}>
+                <p className={`text-[10px] font-semibold ${item.ok ? 'text-emerald-600' : 'text-amber-600'}`}>
                   {item.sub}
                 </p>
               </div>

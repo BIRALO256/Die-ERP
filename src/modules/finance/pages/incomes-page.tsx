@@ -113,105 +113,93 @@ export default function IncomesPage() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-slate-200/80">
-        <div>
-          <div className="flex items-center space-x-3">
-            <h1 className="medical-title">Incomes & Vaccine Contracts</h1>
-            <span className="hidden sm:inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#143d1d]/10 text-[#166534] border border-[#143d1d]/20">
-              Commercial Revenue
-            </span>
-          </div>
-          <p className="medical-body mt-1 text-xs sm:text-sm text-slate-500">
-            Government supply agreements, CDMO clinical invoicing, and accounts receivable tracking
-          </p>
+    <div className="space-y-4">
+      {/* Compact Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2 border-b border-border">
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <h1 className="text-lg font-bold text-foreground tracking-tight" style={{ fontFamily: 'Poppins, Inter, sans-serif' }}>
+            Incomes & Contracts
+          </h1>
+          <span className="text-slate-300">·</span>
+          <span className="text-xs text-slate-500 font-medium">
+            Commercial Supply & CDMO
+          </span>
+          <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200/60 px-2 py-0.5 rounded-md">
+            Q3 Invoicing
+          </span>
         </div>
 
-        <div className="flex items-center space-x-2.5">
+        <div className="flex items-center gap-2">
           <Button
             onClick={() => setShowCreateModal(true)}
             size="sm"
-            className="bg-[#c8102e] hover:bg-[#a80e27] text-white text-xs font-semibold shadow-xs cursor-pointer"
+            className="bg-primary hover:bg-primary-hover text-white text-xs font-semibold px-3 py-1.5 h-auto shadow-2xs cursor-pointer"
           >
-            <Plus className="h-4 w-4 mr-1.5" />
-            Create Commercial Invoice
+            <Plus className="h-3.5 w-3.5 mr-1" />
+            Create Invoice
           </Button>
         </div>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {/* Compact KPI Cards */}
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {/* Total Invoiced */}
-        <div className="pharmacy-stat-card border border-slate-200 bg-white">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="medical-caption uppercase tracking-wider text-slate-500">Total Invoiced (Q3)</p>
-              <h2 className="text-2xl font-extrabold text-slate-900 mt-1 tracking-tight">
-                ${(totalInvoiced / 1000000).toFixed(2)}M
-              </h2>
-            </div>
-            <div className="h-9 w-9 bg-emerald-50 rounded-xl flex items-center justify-center text-[#166534]">
-              <TrendingUp className="h-5 w-5" />
-            </div>
+        <div className="bg-[#f6f5f1] rounded-xl border border-border p-3.5 flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <p className="text-[11px] font-medium text-slate-500">Total Invoiced (Q3)</p>
+            <span className="text-[10px] font-semibold text-emerald-600 flex items-center gap-0.5">
+              <TrendingUp className="h-3 w-3" />
+              {invoices.length} contracts
+            </span>
           </div>
-          <p className="text-xs text-[#166534] font-semibold mt-3 flex items-center">
-            Across {invoices.length} active supply contracts
-          </p>
+          <div className="mt-1">
+            <p className="text-xl font-bold text-foreground leading-none tracking-tight tabular-nums">
+              ${(totalInvoiced / 1000000).toFixed(2)}M
+            </p>
+          </div>
         </div>
 
         {/* Collected Revenue */}
-        <div className="pharmacy-stat-card border border-slate-200 bg-white">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="medical-caption uppercase tracking-wider text-slate-500">Collected Inflows</p>
-              <h2 className="text-2xl font-extrabold text-slate-900 mt-1 tracking-tight">
-                ${(totalCollected / 1000000).toFixed(2)}M
-              </h2>
-            </div>
-            <div className="h-9 w-9 bg-slate-100 rounded-xl flex items-center justify-center text-[#143d1d]">
-              <CheckCircle2 className="h-5 w-5" />
-            </div>
+        <div className="bg-[#f6f5f1] rounded-xl border border-border p-3.5 flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <p className="text-[11px] font-medium text-slate-500">Collected Inflows</p>
+            <span className="text-[10px] font-semibold text-emerald-600">Settled</span>
           </div>
-          <p className="text-xs text-slate-500 font-medium mt-3">
-            Settled via Direct Wire to Treasury
-          </p>
+          <div className="mt-1">
+            <p className="text-xl font-bold text-foreground leading-none tracking-tight tabular-nums">
+              ${(totalCollected / 1000000).toFixed(2)}M
+            </p>
+          </div>
         </div>
 
         {/* Outstanding Receivables */}
-        <div className="pharmacy-stat-card border border-slate-200 bg-white">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="medical-caption uppercase tracking-wider text-slate-500">Accounts Receivable (AR)</p>
-              <h2 className="text-2xl font-extrabold text-slate-900 mt-1 tracking-tight">
-                ${(totalOutstanding / 1000000).toFixed(2)}M
-              </h2>
-            </div>
-            <div className="h-9 w-9 bg-blue-50 rounded-xl flex items-center justify-center text-blue-700">
-              <Clock className="h-5 w-5" />
-            </div>
+        <div className="bg-[#f6f5f1] rounded-xl border border-border p-3.5 flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <p className="text-[11px] font-medium text-slate-500">Receivables (AR)</p>
+            <span className="text-[10px] font-medium text-slate-400">Net-30/60</span>
           </div>
-          <p className="text-xs text-blue-700 font-semibold mt-3">
-            Pending Net-30/60 Days Maturity
-          </p>
+          <div className="mt-1">
+            <p className="text-xl font-bold text-foreground leading-none tracking-tight tabular-nums">
+              ${(totalOutstanding / 1000000).toFixed(2)}M
+            </p>
+          </div>
         </div>
 
         {/* Overdue Alerts */}
-        <div className="pharmacy-stat-card border border-slate-200 bg-white">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="medical-caption uppercase tracking-wider text-slate-500">Past Maturity / Overdue</p>
-              <h2 className="text-2xl font-extrabold text-[#c8102e] mt-1 tracking-tight">
-                {overdueCount} {overdueCount === 1 ? 'Contract' : 'Contracts'}
-              </h2>
-            </div>
-            <div className="h-9 w-9 bg-red-50 rounded-xl flex items-center justify-center text-[#c8102e]">
-              <AlertTriangle className="h-5 w-5" />
-            </div>
+        <div className="bg-[#f6f5f1] rounded-xl border border-border p-3.5 flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <p className="text-[11px] font-medium text-slate-500">Past Maturity</p>
+            <span className="text-[10px] font-bold text-primary flex items-center gap-1">
+              <AlertTriangle className="h-3 w-3" />
+              Overdue
+            </span>
           </div>
-          <p className="text-xs text-[#c8102e] font-semibold mt-3">
-            Africa CDC Reserve ($1.85M)
-          </p>
+          <div className="mt-1 flex items-baseline justify-between">
+            <p className="text-xl font-bold text-primary leading-none tracking-tight tabular-nums">
+              {overdueCount} {overdueCount === 1 ? 'Contract' : 'Contracts'}
+            </p>
+            <span className="text-[10px] text-slate-400">$1.85M</span>
+          </div>
         </div>
       </div>
 

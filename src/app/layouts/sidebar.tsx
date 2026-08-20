@@ -17,6 +17,8 @@ import { useState, useEffect } from 'react'
 import { cn } from '../../shared/utils'
 import { useSidebarStore } from '../../shared/stores/sidebar-store'
 import { useFacilityStore } from '../../shared/stores/facility-store'
+import { usePermission } from '../../shared/hooks/use-permission'
+import type { PermissionAction } from '../../shared/types/permission'
 import deiLogo from '../../assets/dei-biopharma-logo.png'
 
 interface NavItem {
@@ -24,6 +26,7 @@ interface NavItem {
   href?: string
   icon: React.ComponentType<{ className?: string }>
   badge?: string
+  requiredPermission?: PermissionAction
   children?: NavItem[]
 }
 
@@ -36,6 +39,7 @@ const navigation: NavItem[] = [
   {
     title: 'Finance',
     icon: DollarSign,
+    requiredPermission: 'finance:view_accounts',
     children: [
       { title: 'Overview', href: '/finance', icon: LayoutDashboard },
       { title: 'Accounts', href: '/finance/accounts', icon: DollarSign },
@@ -48,6 +52,7 @@ const navigation: NavItem[] = [
   {
     title: 'HR',
     icon: Users,
+    requiredPermission: 'hr:view_employees',
     children: [
       { title: 'Overview', href: '/hr', icon: LayoutDashboard },
       { title: 'Employees', href: '/hr/employees', icon: Users },
@@ -58,6 +63,7 @@ const navigation: NavItem[] = [
     title: 'Procurement',
     icon: ShoppingCart,
     badge: '2',
+    requiredPermission: 'procurement:create_po',
     children: [
       { title: 'Overview', href: '/procurement', icon: LayoutDashboard },
       { title: 'Orders', href: '/procurement/purchase-orders', icon: ShoppingCart },
@@ -73,6 +79,7 @@ interface SidebarProps {
 export function Sidebar({ isMobile = false }: SidebarProps) {
   const { isCollapsed, toggleCollapsed, closeMobile } = useSidebarStore()
   const { getActiveFacility } = useFacilityStore()
+  const { can } = usePermission()
   const activeFacility = getActiveFacility()
   const [expandedItems, setExpandedItems] = useState<string[]>([])
   const [activeFlyout, setActiveFlyout] = useState<string | null>(null)
@@ -361,9 +368,11 @@ export function Sidebar({ isMobile = false }: SidebarProps) {
         collapsed ? "py-4 px-2" : "py-4 px-3.5"
       )}>
         <nav className="space-y-1">
-          {navigation.map(item => 
-            collapsed ? renderCollapsedNav(item) : renderExpandedNav(item)
-          )}
+          {navigation
+            .filter((item) => !item.requiredPermission || can(item.requiredPermission))
+            .map((item) => 
+              collapsed ? renderCollapsedNav(item) : renderExpandedNav(item)
+            )}
         </nav>
       </div>
 

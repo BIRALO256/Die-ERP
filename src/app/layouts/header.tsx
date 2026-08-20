@@ -13,6 +13,7 @@ import { Button } from '../../shared/components/ui/button'
 import { Card } from '../../shared/components/ui/card'
 import { useSidebarStore } from '../../shared/stores/sidebar-store'
 import { useFacilityStore } from '../../shared/stores/facility-store'
+import { usePermission } from '../../shared/hooks/use-permission'
 import { FacilitySwitcher } from '../../shared/components/facility-switcher'
 import { cn } from '../../shared/utils'
 import drSarahAvatar from '../../assets/dr-sarah-nakato.jpg'
@@ -22,6 +23,7 @@ export function Header() {
   const [showNotifications, setShowNotifications] = useState(false)
   const { isCollapsed, toggleCollapsed, toggleMobile } = useSidebarStore()
   const { getActiveFacility } = useFacilityStore()
+  const { roleTitle } = usePermission()
   const activeFacility = getActiveFacility()
 
   return (
@@ -148,6 +150,7 @@ export function Header() {
                 />
                 <div className="min-w-0">
                   <p className="text-xs font-bold text-foreground truncate">Dr. Sarah Nakato</p>
+                  <p className="text-[10px] text-accent font-semibold truncate leading-tight mt-0.5">{roleTitle}</p>
                   <p className="text-[10px] text-slate-400 truncate">sarah.nakato@deibiopharma.com</p>
                 </div>
               </div>
