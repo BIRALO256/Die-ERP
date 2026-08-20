@@ -9,8 +9,6 @@ import {
   Receipt,
   FileSpreadsheet,
   ArrowRight,
-  Banknote,
-  Landmark,
   ShieldCheck,
   Clock,
   AlertCircle,
@@ -29,107 +27,90 @@ export default function FinanceDashboard() {
   const handleReject  = (id: string) => setPendingExpenses(prev => prev.filter(e => e.id !== id))
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-5">
 
       {/* ── HEADER ──────────────────────────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-        <div>
-          <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1">
-            Q3 FY2026 · IFRS & WHO GMP Audit-Ready
-          </p>
-          <h1 className="text-3xl font-bold tracking-tight text-[#0e1f17] leading-none" style={{ fontFamily: 'Poppins, Inter, sans-serif' }}>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2 border-b border-border">
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <h1 className="text-lg font-bold text-foreground tracking-tight" style={{ fontFamily: 'Poppins, Inter, sans-serif' }}>
             Finance & Treasury
           </h1>
-          <p className="text-sm text-slate-400 mt-2">Matugga Facility · Vakiso, Uganda</p>
+          <span className="text-slate-300">·</span>
+          <span className="text-xs text-slate-500 font-medium">Q3 FY2026</span>
+          <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200/60 px-2 py-0.5 rounded-md">
+            IFRS & GMP Audit-Ready
+          </span>
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <Link to="/finance/reports">
-            <Button variant="outline" size="sm" className="text-xs font-semibold h-8 border-[#e3e1da] text-slate-500 cursor-pointer bg-white hover:bg-[#f6f5f1]">
-              <BarChart3 className="h-3.5 w-3.5 mr-1.5 text-slate-400" />
+            <Button variant="outline" size="sm" className="text-xs font-semibold h-8 border-border text-slate-600 cursor-pointer bg-white hover:bg-background">
+              <BarChart3 className="h-3.5 w-3.5 mr-1 text-slate-400" />
               Statements
             </Button>
           </Link>
           <Link to="/finance/incomes">
-            <Button size="sm" className="bg-[#c8102e] hover:bg-[#a80e27] text-white text-xs font-semibold h-8 shadow-sm cursor-pointer">
-              <PlusCircle className="h-3.5 w-3.5 mr-1.5" />
+            <Button size="sm" className="bg-primary hover:bg-primary-hover text-white text-xs font-semibold h-8 shadow-2xs cursor-pointer">
+              <PlusCircle className="h-3.5 w-3.5 mr-1" />
               New Invoice
             </Button>
           </Link>
         </div>
       </div>
 
-      {/* ── HERO + 3 SECONDARY ──────────────────────────────────────────────────
-          Rationale: Same hierarchy pattern as the main dashboard.
-          The finance question is: "Are we profitable?" → answered by ONE number.
-          Net Surplus ($16.25M) is the primary — it synthesises revenue, cost,
-          and margin into a single executive signal.
-          
-          The 3 supporting cells answer the 3 follow-up questions:
-          "What came in?" "What went out?" "What's liquid?"
-          
-          Removing the 4-ratio strip eliminates 4 redundant data points —
-          Gross Margin (80.4%) is derivable from Revenue ÷ Cost. Tufte's
-          data-ink ratio principle: never show what can be inferred.
-      */}
-      <div className="bg-white rounded-2xl border border-[#e3e1da] overflow-hidden">
-        <div className="grid sm:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-[#e3e1da]">
+      {/* ── COMPACT KPI STRIP ────────────────────────────────────────────────── */}
+      <div className="bg-[#f6f5f1] rounded-xl border border-border overflow-hidden">
+        <div className="grid sm:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-border">
 
           {/* Hero — Net Surplus */}
-          <div className="sm:col-span-1 p-5 flex flex-col justify-between">
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                Net Surplus · Q3
-              </p>
-              <p className="text-4xl font-extrabold text-[#0e1f17] mt-2 leading-none tracking-tight">
+          <div className="sm:col-span-1 p-3.5 flex flex-col justify-between">
+            <div className="flex items-center justify-between">
+              <p className="text-[11px] font-medium text-slate-500">Net Surplus · Q3</p>
+              <span className="text-[11px] font-bold text-emerald-600 flex items-center gap-0.5">
+                <ArrowUpRight className="h-3 w-3" />
+                71.7%
+              </span>
+            </div>
+            <div className="mt-1 flex items-baseline gap-1.5">
+              <p className="text-2xl font-bold text-foreground leading-none tracking-tight tabular-nums">
                 $16.25M
               </p>
-              <p className="text-xs font-semibold text-slate-400 mt-1.5">after all costs & depreciation</p>
-            </div>
-            <div className="mt-4">
-              <div className="flex items-center gap-1.5 text-[11px] font-bold text-emerald-600 mb-1">
-                <ArrowUpRight className="h-3.5 w-3.5" />
-                71.7% net margin
-              </div>
-              <div className="w-full h-1 bg-[#f0efeb] rounded-full overflow-hidden">
-                <div className="h-full bg-emerald-500/40 rounded-full" style={{ width: '71.7%' }} />
-              </div>
+              <span className="text-[10px] text-slate-400">after costs</span>
             </div>
           </div>
 
           {/* Revenue */}
-          <div className="p-5 flex flex-col justify-between">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Gross Revenue</p>
-            <div>
-              <p className="text-2xl font-extrabold text-[#0e1f17] mt-2 leading-none tracking-tight">$23.3M</p>
-              <p className="text-[11px] text-emerald-600 font-semibold mt-1.5">+20.1% vs Q2</p>
-              <p className="text-[10px] text-slate-400 mt-1">Vaccine contracts + CDMO</p>
+          <div className="p-3.5 flex flex-col justify-between">
+            <div className="flex items-center justify-between">
+              <p className="text-[11px] font-medium text-slate-500">Gross Revenue</p>
+              <span className="text-[10px] font-semibold text-emerald-600">+20.1%</span>
+            </div>
+            <div className="mt-1 flex items-baseline gap-1.5">
+              <p className="text-xl font-bold text-foreground leading-none tracking-tight tabular-nums">$23.3M</p>
+              <span className="text-[10px] text-slate-400">Vaccine + CDMO</span>
             </div>
           </div>
 
           {/* OpEx */}
-          <div className="p-5 flex flex-col justify-between">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Total OpEx</p>
-            <div>
-              <p className="text-2xl font-extrabold text-[#0e1f17] mt-2 leading-none tracking-tight">$6.6M</p>
-              <div className="mt-2">
-                <div className="flex justify-between text-[10px] text-slate-400 mb-1">
-                  <span>$6.6M of $7.2M budget</span>
-                  <span className="font-bold text-slate-600">91.7%</span>
-                </div>
-                <div className="w-full h-1 bg-[#f0efeb] rounded-full overflow-hidden">
-                  <div className="h-full bg-slate-400 rounded-full" style={{ width: '91.7%' }} />
-                </div>
-              </div>
+          <div className="p-3.5 flex flex-col justify-between">
+            <div className="flex items-center justify-between">
+              <p className="text-[11px] font-medium text-slate-500">Total OpEx</p>
+              <span className="text-[10px] font-semibold text-slate-600">91.7% budget</span>
+            </div>
+            <div className="mt-1 flex items-baseline gap-1.5">
+              <p className="text-xl font-bold text-foreground leading-none tracking-tight tabular-nums">$6.6M</p>
+              <span className="text-[10px] text-slate-400">of $7.2M</span>
             </div>
           </div>
 
           {/* Treasury */}
-          <div className="p-5 flex flex-col justify-between">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Cash & Treasury</p>
-            <div>
-              <p className="text-2xl font-extrabold text-[#0e1f17] mt-2 leading-none tracking-tight">$7.13M</p>
-              <p className="text-[11px] text-emerald-600 font-semibold mt-1.5">Liquid · 3 accounts</p>
-              <p className="text-[10px] text-slate-400 mt-1">8.1 months runway</p>
+          <div className="p-3.5 flex flex-col justify-between">
+            <div className="flex items-center justify-between">
+              <p className="text-[11px] font-medium text-slate-500">Cash & Treasury</p>
+              <span className="text-[10px] font-semibold text-emerald-600">Liquid</span>
+            </div>
+            <div className="mt-1 flex items-baseline gap-1.5">
+              <p className="text-xl font-bold text-foreground leading-none tracking-tight tabular-nums">$7.13M</p>
+              <span className="text-[10px] text-slate-400">Across 3 accounts</span>
             </div>
           </div>
         </div>

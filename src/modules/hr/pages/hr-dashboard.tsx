@@ -1,70 +1,81 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../../shared/components/ui/card'
+import { useFacilityStore } from '../../../shared/stores/facility-store'
+import { usePermission } from '../../../shared/hooks/use-permission'
 
 export default function HRDashboard() {
+  const { getActiveFacility } = useFacilityStore()
+  const { roleTitle } = usePermission()
+  const activeFacility = getActiveFacility()
+
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">HR Overview</h1>
-        <p className="text-muted-foreground">
-          Manage human resources, employees, and payroll operations.
-        </p>
+    <div className="space-y-4">
+      {/* Compact Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2 border-b border-border">
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <h1 className="text-lg font-bold text-foreground tracking-tight" style={{ fontFamily: 'Poppins, Inter, sans-serif' }}>
+            Human Capital & Staffing
+          </h1>
+          <span className="text-slate-300">·</span>
+          <span className="text-xs text-slate-500 font-medium">{activeFacility.name}</span>
+          <span className="text-[10px] font-semibold text-accent bg-accent/10 px-2 py-0.5 rounded-md">
+            {roleTitle}
+          </span>
+        </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Employees</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">147</div>
-            <p className="text-xs text-muted-foreground">+3 from last month</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Open Positions</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">8</div>
-            <p className="text-xs text-muted-foreground">Currently recruiting</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Payroll This Month</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">$89,432</div>
-            <p className="text-xs text-muted-foreground">Processed successfully</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Leave Requests</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">12</div>
-            <p className="text-xs text-muted-foreground">Pending approval</p>
-          </CardContent>
-        </Card>
+      {/* Compact KPI Strip */}
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="bg-[#f6f5f1] rounded-xl border border-border p-3.5 flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <p className="text-[11px] font-medium text-slate-500">Active Staff</p>
+            <span className="text-[10px] font-semibold text-emerald-600">100% on duty</span>
+          </div>
+          <div className="mt-1">
+            <p className="text-xl font-bold text-foreground leading-none tracking-tight tabular-nums">
+              {activeFacility.staffOnDuty || 847}
+            </p>
+          </div>
+        </div>
+
+        <div className="bg-[#f6f5f1] rounded-xl border border-border p-3.5 flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <p className="text-[11px] font-medium text-slate-500">Open Requisitions</p>
+            <span className="text-[10px] font-medium text-slate-400">Recruiting</span>
+          </div>
+          <div className="mt-1">
+            <p className="text-xl font-bold text-foreground leading-none tracking-tight tabular-nums">
+              8 Positions
+            </p>
+          </div>
+        </div>
+
+        <div className="bg-[#f6f5f1] rounded-xl border border-border p-3.5 flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <p className="text-[11px] font-medium text-slate-500">Monthly Payroll</p>
+            <span className="text-[10px] font-semibold text-emerald-600">Processed</span>
+          </div>
+          <div className="mt-1">
+            <p className="text-xl font-bold text-foreground leading-none tracking-tight tabular-nums">
+              $89,432
+            </p>
+          </div>
+        </div>
+
+        <div className="bg-[#f6f5f1] rounded-xl border border-border p-3.5 flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <p className="text-[11px] font-medium text-slate-500">Leave Requests</p>
+            <span className="text-[10px] font-medium text-slate-400">Pending Review</span>
+          </div>
+          <div className="mt-1">
+            <p className="text-xl font-bold text-foreground leading-none tracking-tight tabular-nums">
+              12 Requests
+            </p>
+          </div>
+        </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>HR Module</CardTitle>
-          <CardDescription>
-            Human Resources management features will be implemented here
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground">
-            Employee management, payroll processing, and HR workflows coming soon...
-          </p>
-        </CardContent>
-      </Card>
+      <div className="bg-white rounded-xl border border-border p-6 text-center text-slate-400 text-xs">
+        Employee personnel registry, 21 CFR gowning certifications, and shift rosters live view.
+      </div>
     </div>
   )
 }

@@ -89,28 +89,27 @@ export default function AccountsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-slate-200/80">
-        <div>
-          <div className="flex items-center space-x-3">
-            <h1 className="medical-title">Chart of Accounts & Treasury</h1>
-            <span className="hidden sm:inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#143d1d]/10 text-[#166534] border border-[#143d1d]/20">
-              IFRS Compliant
-            </span>
-          </div>
-          <p className="medical-body mt-1 text-xs sm:text-sm text-slate-500">
-            Enterprise general ledger structure, bank accounts, and multi-currency balances
-          </p>
+    <div className="space-y-4">
+      {/* Compact Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2 border-b border-border">
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <h1 className="text-lg font-bold text-foreground tracking-tight" style={{ fontFamily: 'Poppins, Inter, sans-serif' }}>
+            Chart of Accounts
+          </h1>
+          <span className="text-slate-300">·</span>
+          <span className="text-xs text-slate-500 font-medium">General Ledger & Treasury</span>
+          <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200/60 px-2 py-0.5 rounded-md">
+            IFRS Compliant
+          </span>
         </div>
 
-        <div className="flex items-center space-x-2.5">
+        <div className="flex items-center gap-2">
           <Button
             onClick={() => setShowAddModal(true)}
             size="sm"
-            className="bg-[#c8102e] hover:bg-[#a80e27] text-white text-xs font-semibold shadow-xs"
+            className="bg-primary hover:bg-primary-hover text-white text-xs font-semibold px-3 py-1.5 h-auto shadow-2xs cursor-pointer"
           >
-            <Plus className="h-4 w-4 mr-1.5" />
+            <Plus className="h-3.5 w-3.5 mr-1" />
             Add Account
           </Button>
         </div>
@@ -118,37 +117,41 @@ export default function AccountsPage() {
 
       {/* Bank Accounts & Treasury Cards */}
       <div>
-        <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2">
-          <Wallet className="h-4 w-4 text-[#c8102e]" />
-          Bank Treasury Accounts & Sovereign Escrows
-        </h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-[11px] font-semibold text-slate-500 flex items-center gap-1.5">
+            <Wallet className="h-3.5 w-3.5 text-accent" />
+            Treasury & Operating Accounts
+          </p>
+          <span className="text-[10px] text-slate-400 font-medium">3 active banks</span>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {bankAccounts.map(bank => (
-            <div key={bank.id} className="pharmacy-stat-card border border-slate-200 bg-white">
+            <div key={bank.id} className="bg-[#f6f5f1] rounded-xl border border-border p-3.5 flex flex-col justify-between">
               <div className="flex items-start justify-between">
                 <div>
-                  <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wide">
+                  <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">
                     {bank.accountType}
                   </span>
-                  <h3 className="text-sm font-bold text-slate-900 mt-0.5">{bank.bankName}</h3>
+                  <h3 className="text-xs font-bold text-foreground mt-0.5">{bank.bankName}</h3>
                 </div>
-                <div className="h-8 w-8 rounded-xl bg-slate-50 flex items-center justify-center text-slate-700">
-                  <CreditCard className="h-4 w-4" />
+                <div className="h-7 w-7 rounded-lg bg-white border border-border flex items-center justify-center text-slate-500">
+                  <CreditCard className="h-3.5 w-3.5" />
                 </div>
               </div>
 
-              <div className="mt-4">
-                <p className="text-2xl font-extrabold text-slate-900 tracking-tight">
+              <div className="mt-2">
+                <p className="text-xl font-bold text-foreground leading-tight tracking-tight tabular-nums">
                   {bank.currency === 'UGX' 
-                    ? `UGX ${(bank.balance / 1000000000).toFixed(2)} Billion` 
-                    : `$${(bank.balance / 1000000).toFixed(2)} Million`}
+                    ? `UGX ${(bank.balance / 1000000000).toFixed(2)}B` 
+                    : `$${(bank.balance / 1000000).toFixed(2)}M`}
                 </p>
-                <p className="text-[11px] font-mono text-slate-500 mt-1">{bank.accountNumber}</p>
+                <p className="text-[10px] font-mono text-slate-400 mt-0.5">{bank.accountNumber}</p>
               </div>
 
-              <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-                <span className="text-slate-500 text-[11px] truncate max-w-[180px]">{bank.facilityBranch}</span>
-                <span className="inline-flex items-center text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+              <div className="mt-2.5 pt-2 border-t border-border/80 flex items-center justify-between text-[10px]">
+                <span className="text-slate-500 truncate max-w-[170px]">{bank.facilityBranch}</span>
+                <span className="font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200/60">
                   Active
                 </span>
               </div>

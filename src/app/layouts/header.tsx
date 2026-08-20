@@ -15,7 +15,6 @@ import { useSidebarStore } from '../../shared/stores/sidebar-store'
 import { useFacilityStore } from '../../shared/stores/facility-store'
 import { usePermission } from '../../shared/hooks/use-permission'
 import { FacilitySwitcher } from '../../shared/components/facility-switcher'
-import { cn } from '../../shared/utils'
 import drSarahAvatar from '../../assets/dr-sarah-nakato.jpg'
 
 export function Header() {

@@ -2,13 +2,10 @@ import { useState } from 'react'
 import { 
   BookOpen, 
   Plus, 
-  Search, 
-  CheckCircle2, 
-  Clock, 
+  Search,  
   ChevronDown, 
   ChevronRight, 
   X,
-  ShieldCheck
 } from 'lucide-react'
 import { Button } from '../../../shared/components/ui/button'
 import { Card } from '../../../shared/components/ui/card'
@@ -104,105 +101,86 @@ export default function JournalsPage() {
   const isBalanced = debNum > 0 && debNum === credNum
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-slate-200/80">
-        <div>
-          <div className="flex items-center space-x-3">
-            <h1 className="medical-title">General Ledger & Journals</h1>
-            <span className="hidden sm:inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#143d1d]/10 text-[#166534] border border-[#143d1d]/20">
-              Double-Entry Audit Trail
-            </span>
-          </div>
-          <p className="medical-body mt-1 text-xs sm:text-sm text-slate-500">
-            Immutable financial event log, debit & credit balancing, and batch lot traceability
-          </p>
+    <div className="space-y-4">
+      {/* Compact Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2 border-b border-border">
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <h1 className="text-lg font-bold text-foreground tracking-tight" style={{ fontFamily: 'Poppins, Inter, sans-serif' }}>
+            Journals & General Ledger
+          </h1>
+          <span className="text-slate-300">·</span>
+          <span className="text-xs text-slate-500 font-medium">Double-Entry Financial Events</span>
+          <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200/60 px-2 py-0.5 rounded-md">
+            Annex 11 Audit-Ready
+          </span>
         </div>
 
-        <div className="flex items-center space-x-2.5">
+        <div className="flex items-center gap-2">
           <Button
             onClick={() => setShowAddModal(true)}
             size="sm"
-            className="bg-[#c8102e] hover:bg-[#a80e27] text-white text-xs font-semibold shadow-xs cursor-pointer"
+            className="bg-primary hover:bg-primary-hover text-white text-xs font-semibold px-3 py-1.5 h-auto shadow-2xs cursor-pointer"
           >
-            <Plus className="h-4 w-4 mr-1.5" />
+            <Plus className="h-3.5 w-3.5 mr-1" />
             Post Journal Entry
           </Button>
         </div>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {/* Compact KPI Cards */}
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {/* Total Ledger Volume */}
-        <div className="pharmacy-stat-card border border-slate-200 bg-white">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="medical-caption uppercase tracking-wider text-slate-500">Total Journal Volume</p>
-              <h2 className="text-2xl font-extrabold text-slate-900 mt-1 tracking-tight">
-                ${(totalVolume / 1000000).toFixed(2)}M
-              </h2>
-            </div>
-            <div className="h-9 w-9 bg-emerald-50 rounded-xl flex items-center justify-center text-[#166534]">
-              <BookOpen className="h-5 w-5" />
-            </div>
+        <div className="bg-[#f6f5f1] rounded-xl border border-border p-3.5 flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <p className="text-[11px] font-medium text-slate-500">Journal Volume</p>
+            <span className="text-[10px] font-semibold text-emerald-600">Balanced 100%</span>
           </div>
-          <p className="text-xs text-[#166534] font-semibold mt-3 flex items-center">
-            Double-entry balanced 100%
-          </p>
+          <div className="mt-1">
+            <p className="text-xl font-bold text-foreground leading-none tracking-tight tabular-nums">
+              ${(totalVolume / 1000000).toFixed(2)}M
+            </p>
+          </div>
         </div>
 
         {/* Posted Entries */}
-        <div className="pharmacy-stat-card border border-slate-200 bg-white">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="medical-caption uppercase tracking-wider text-slate-500">Posted & Verified</p>
-              <h2 className="text-2xl font-extrabold text-slate-900 mt-1 tracking-tight">
-                {postedEntries} Entries
-              </h2>
-            </div>
-            <div className="h-9 w-9 bg-slate-100 rounded-xl flex items-center justify-center text-[#143d1d]">
-              <CheckCircle2 className="h-5 w-5" />
-            </div>
+        <div className="bg-[#f6f5f1] rounded-xl border border-border p-3.5 flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <p className="text-[11px] font-medium text-slate-500">Posted & Verified</p>
+            <span className="text-[10px] font-semibold text-emerald-600">Locked</span>
           </div>
-          <p className="text-xs text-slate-500 font-medium mt-3">
-            Locked in Immutable Audit Trail
-          </p>
+          <div className="mt-1">
+            <p className="text-xl font-bold text-foreground leading-none tracking-tight tabular-nums">
+              {postedEntries} Entries
+            </p>
+          </div>
         </div>
 
         {/* Draft Entries */}
-        <div className="pharmacy-stat-card border border-slate-200 bg-white">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="medical-caption uppercase tracking-wider text-slate-500">Draft Adjustments</p>
-              <h2 className="text-2xl font-extrabold text-amber-800 mt-1 tracking-tight">
-                {draftEntries} Entry
-              </h2>
-            </div>
-            <div className="h-9 w-9 bg-amber-50 rounded-xl flex items-center justify-center text-amber-700">
-              <Clock className="h-5 w-5" />
-            </div>
+        <div className="bg-[#f6f5f1] rounded-xl border border-border p-3.5 flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <p className="text-[11px] font-medium text-slate-500">Draft Adjustments</p>
+            <span className="text-[10px] font-medium text-slate-400">In Progress</span>
           </div>
-          <p className="text-xs text-amber-700 font-semibold mt-3">
-            Sartorius Bioreactor Capitalization
-          </p>
+          <div className="mt-1">
+            <p className="text-xl font-bold text-foreground leading-none tracking-tight tabular-nums">
+              {draftEntries} {draftEntries === 1 ? 'Entry' : 'Entries'}
+            </p>
+          </div>
         </div>
 
         {/* Audit Compliance */}
-        <div className="pharmacy-stat-card border border-slate-200 bg-white">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="medical-caption uppercase tracking-wider text-slate-500">Audit Status</p>
-              <h2 className="text-2xl font-extrabold text-emerald-800 mt-1 tracking-tight">
-                WHO / GMP
-              </h2>
-            </div>
-            <div className="h-9 w-9 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-700">
-              <ShieldCheck className="h-5 w-5" />
-            </div>
+        <div className="bg-[#f6f5f1] rounded-xl border border-border p-3.5 flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <p className="text-[11px] font-medium text-slate-500">Audit Trail</p>
+            <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200/60">
+              WHO / GMP
+            </span>
           </div>
-          <p className="text-xs text-emerald-700 font-semibold mt-3">
-            Compliant with Annex 11
-          </p>
+          <div className="mt-1">
+            <p className="text-xl font-bold text-foreground leading-none tracking-tight">
+              Annex 11 Pass
+            </p>
+          </div>
         </div>
       </div>
 
