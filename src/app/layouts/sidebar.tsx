@@ -11,7 +11,8 @@ import {
   TrendingUp,
   Receipt,
   BookOpen,
-  X
+  X,
+  Layers
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { cn } from '../../shared/utils'
@@ -57,6 +58,7 @@ const navigation: NavItem[] = [
       { title: 'Overview', href: '/hr', icon: LayoutDashboard },
       { title: 'Employees', href: '/hr/employees', icon: Users },
       { title: 'Payroll', href: '/hr/payroll', icon: DollarSign },
+      { title: 'Form Builder', href: '/hr/form-builder', icon: Layers },
     ],
   },
   {
