@@ -1,9 +1,8 @@
 import { useState } from 'react'
-import { Users, Plus, Search, ShieldCheck, AlertTriangle, XCircle, Layers, ChevronRight } from 'lucide-react'
+import { Users, Plus, Search, ShieldCheck, AlertTriangle, XCircle, ChevronRight } from 'lucide-react'
 import { Button } from '../../../shared/components/ui/button'
 import { useHRStore } from '../stores/hr-store'
 import { useFacilityStore } from '../../../shared/stores/facility-store'
-import { usePermission } from '../../../shared/hooks/use-permission'
 import { OnboardEmployeeModal } from '../components/onboard-employee-modal'
 import { EmployeeDetailModal } from '../components/employee-detail-modal'
 import { CertRenewalModal } from '../components/cert-renewal-modal'
@@ -53,7 +52,6 @@ export default function EmployeesPage() {
   } = useHRStore()
 
   const { activeFacilityId, getActiveFacility } = useFacilityStore()
-  const { can } = usePermission()
   const activeFacility = getActiveFacility()
 
   const [showOnboardModal, setShowOnboardModal] = useState(false)

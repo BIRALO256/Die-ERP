@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import {
   X, User, Briefcase, Heart, GraduationCap, ShieldCheck,
-  Plus, Trash2, ChevronLeft, ChevronRight, Check, Sparkles, Layers
+  Plus, Trash2, ChevronLeft, ChevronRight, Check,Layers
 } from 'lucide-react'
 import { FACILITIES } from '../../../shared/constants/facilities'
 import { useSchemaStore } from '../stores/schema-store'

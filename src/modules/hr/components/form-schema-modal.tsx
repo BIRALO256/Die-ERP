@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { X, Layers, Check, FileCode2, Sparkles, Plus } from 'lucide-react'
+import { X, Layers, FileCode2, } from 'lucide-react'
 import { useSchemaStore } from '../stores/schema-store'
 import type { FormSchema } from '../types'
 
@@ -12,7 +12,6 @@ interface FormSchemaModalProps {
 export function FormSchemaModal({
   isOpen,
   onClose,
-  onSelectSchemaForOnboarding,
 }: FormSchemaModalProps) {
   const { schemas } = useSchemaStore()
   const [activeVersion, setActiveVersion] = useState<string>('v1.0')
