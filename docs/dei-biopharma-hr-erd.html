@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dei BioPharma HR Microservice ERD & Schema Mapping</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    :root {
+      --primary: #C8102E;
+      --accent: #143D1D;
+      --bg: #F8FAFC;
+      --card-bg: #FFFFFF;
+      --text: #0F172A;
+      --border: #E2E8F0;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      margin: 0;
+      padding: 24px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    header {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    h1 {
+      margin: 0 0 8px 0;
+      font-size: 24px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .badge {
+      background: rgba(200, 16, 46, 0.1);
+      color: var(--primary);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      overflow-x: auto;
+    }
+    h2 {
+      font-size: 18px;
+      margin-top: 0;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+      color: var(--accent);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin-top: 12px;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+      text-align: left;
+    }
+    th {
+      background-color: #F1F5F9;
+      font-weight: 600;
+    }
+    pre {
+      background: #0F172A;
+      color: #F8FAFC;
+      padding: 16px;
+      border-radius: 12px;
+      font-size: 12px;
+      overflow-x: auto;
+    }
+  </style>
+  <script>
+    mermaid.initialize({ startOnLoad: true, theme: 'neutral' });
+  </script>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Dei BioPharma HR Microservice ERD & Schema Mapping <span class="badge">v2.0 Multi-Facility</span></h1>
+      <p style="margin: 0; color: #64748B; font-size: 14px;">
+        Interactive Database Architecture for Matugga GMP Bio-Plant, Kakiika Clinical Trials, Nakaseke Bio-Agro, and Global Corporate HQ.
+      </p>
+    </header>
+
+    <div class="card">
+      <h2>1. Visual Entity Relationship Diagram</h2>
+      <div class="mermaid">
+erDiagram
+    ORGANIZATION_UNITS ||--o{ EMPLOYEES : "employs"
+    ORGANIZATION_UNITS ||--o{ SHIFT_ASSIGNMENTS : "schedules at"
+    ORGANIZATION_UNITS ||--o{ PAYROLL_RUNS : "runs payroll for"
+
+    EMPLOYEES ||--o{ EMPLOYEE_DEPENDENTS : "has family"
+    EMPLOYEES ||--o{ EMERGENCY_CONTACTS : "designates"
+    EMPLOYEES ||--o{ EDUCATION_RECORDS : "holds degrees"
+    EMPLOYEES ||--o{ EMPLOYMENT_HISTORY : "has past experience"
+    EMPLOYEES ||--o{ EMPLOYEE_CERTIFICATIONS : "maintains licenses"
+    EMPLOYEES ||--o{ SHIFT_ASSIGNMENTS : "assigned to"
+    EMPLOYEES ||--o{ PAYSLIPS : "receives"
+
+    PAYROLL_RUNS ||--o{ PAYSLIPS : "contains"
+
+    EMPLOYEES {
+        bigint id PK
+        uuid user_id FK
+        bigint organization_unit_id FK
+        varchar employee_number
+        varchar full_name
+        varchar national_id_nin
+        date date_of_birth
+        varchar gender
+        varchar marital_status
+        varchar place_of_residence
+        varchar city
+        varchar phone_number
+        varchar personal_email
+        varchar job_title
+        varchar department
+        bigint manager_supervisor_id FK
+        date hire_date
+        varchar employment_status
+        varchar employment_type
+        varchar base_currency
+        decimal base_salary
+        varchar status
+        varchar form_version
+        jsonb custom_fields
+    }
+
+    EMPLOYEE_DEPENDENTS {
+        bigint id PK
+        bigint employee_id FK
+        varchar relationship_type
+        varchar full_name
+        date date_of_birth
+        integer age
+        varchar gender
+        varchar phone_number
+        boolean is_emergency_contact
+    }
+
+    EMERGENCY_CONTACTS {
+        bigint id PK
+        bigint employee_id FK
+        integer priority
+        varchar contact_name
+        varchar relationship
+        varchar primary_phone
+        varchar alternate_phone
+    }
+
+    EDUCATION_RECORDS {
+        bigint id PK
+        bigint employee_id FK
+        varchar degree_title
+        varchar institution
+        integer graduation_year
+        varchar grade_classification
+    }
+
+    EMPLOYMENT_HISTORY {
+        bigint id PK
+        bigint employee_id FK
+        varchar previous_employer
+        varchar job_title
+        varchar duration_from_to
+        text key_responsibilities
+    }
+
+    EMPLOYEE_CERTIFICATIONS {
+        bigint id PK
+        bigint employee_id FK
+        varchar cert_type
+        varchar cert_name
+        varchar issuing_body
+        varchar license_number
+        date issue_date
+        date expiry_date
+        varchar verification_status
+    }
+
+    SHIFT_ASSIGNMENTS {
+        bigint id PK
+        bigint employee_id FK
+        bigint organization_unit_id FK
+        varchar shift_code
+        varchar production_line
+        date start_date
+        date end_date
+        varchar status
+    }
+
+    PAYROLL_RUNS {
+        bigint id PK
+        bigint organization_unit_id FK
+        varchar batch_number
+        varchar period_month_year
+        varchar currency
+        decimal total_gross_pay
+        decimal total_nssf_employer
+        decimal total_nssf_employee
+        decimal total_paye_tax
+        decimal total_net_disbursed
+        varchar status
+    }
+
+    PAYSLIPS {
+        bigint id PK
+        bigint payroll_run_id FK
+        bigint employee_id FK
+        decimal base_salary
+        decimal hazard_allowance
+        decimal overtime_allowance
+        decimal gross_pay
+        decimal nssf_employee_deduction
+        decimal paye_tax_deduction
+        decimal local_service_tax
+        decimal other_deductions
+        decimal net_pay
+        varchar payment_method
+        varchar bank_name
+        varchar bank_account_no
+        varchar status
+    }
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>2. Bio-Data Form ➔ Database Column Mapping</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Paper Bio-Data Field</th>
+            <th>Database Table</th>
+            <th>Target Column</th>
+            <th>Data Type</th>
+            <th>Notes & Extensibility</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Full Name</strong></td>
+            <td><code>employees</code></td>
+            <td><code>full_name</code></td>
+            <td>VARCHAR(255)</td>
+            <td>Full legal name</td>
+          </tr>
+          <tr>
+            <td><strong>Start Date</strong></td>
+            <td><code>employees</code></td>
+            <td><code>hire_date</code></td>
+            <td>DATE</td>
+            <td>Operational start date</td>
+          </tr>
+          <tr>
+            <td><strong>NIN Number</strong></td>
+            <td><code>employees</code></td>
+            <td><code>national_id_nin</code></td>
+            <td>VARCHAR(50)</td>
+            <td>Uganda National Identification Number (Unique)</td>
+          </tr>
+          <tr>
+            <td><strong>Marital status</strong></td>
+            <td><code>employees</code></td>
+            <td><code>marital_status</code></td>
+            <td>VARCHAR(30)</td>
+            <td>Single, Married, Divorced, Widowed, Separated</td>
+          </tr>
+          <tr>
+            <td><strong>Spouse Details</strong></td>
+            <td><code>employee_dependents</code></td>
+            <td><code>full_name, phone_number</code></td>
+            <td>VARCHAR(255)</td>
+            <td><code>relationship_type = 'SPOUSE'</code></td>
+          </tr>
+          <tr>
+            <td><strong>Children under 18 Details</strong></td>
+            <td><code>employee_dependents</code></td>
+            <td><code>full_name, date_of_birth, age, gender</code></td>
+            <td>Multiple Rows</td>
+            <td><code>relationship_type = 'CHILD'</code> (Extensible to any family member)</td>
+          </tr>
+          <tr>
+            <td><strong>Emergency Contacts 1 & 2</strong></td>
+            <td><code>emergency_contacts</code></td>
+            <td><code>contact_name, relationship, phone</code></td>
+            <td>Multiple Rows</td>
+            <td><code>priority = 1 | 2</code></td>
+          </tr>
+          <tr>
+            <td><strong>Education Background</strong></td>
+            <td><code>education_records</code></td>
+            <td><code>degree_title, institution, year</code></td>
+            <td>Multiple Rows</td>
+            <td>Highest degree/diploma achieved</td>
+          </tr>
+          <tr>
+            <td><strong>Professional Experience</strong></td>
+            <td><code>employment_history</code></td>
+            <td><code>previous_employer, job_title, duration</code></td>
+            <td>Multiple Rows</td>
+            <td>Past employers & roles</td>
+          </tr>
+          <tr>
+            <td><strong>Languages Spoken</strong></td>
+            <td><code>employees</code></td>
+            <td><code>custom_fields->'languages'</code></td>
+            <td>JSONB Array</td>
+            <td>e.g. <code>["English", "Luganda", "Runyankole"]</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>

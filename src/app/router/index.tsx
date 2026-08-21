@@ -17,6 +17,7 @@ const ReportsPage = lazy(() => import('../../modules/finance/pages/reports-page'
 const HRDashboard = lazy(() => import('../../modules/hr/pages/hr-dashboard'))
 const EmployeesPage = lazy(() => import('../../modules/hr/pages/employees-page'))
 const PayrollPage = lazy(() => import('../../modules/hr/pages/payroll-page'))
+const FormBuilderPage = lazy(() => import('../../modules/hr/pages/form-builder-page'))
 
 // Procurement Module Pages
 const ProcurementDashboard = lazy(() => import('../../modules/procurement/pages/procurement-dashboard'))
@@ -83,6 +84,10 @@ export const router = createBrowserRouter([
           {
             path: 'payroll',
             element: <PayrollPage />,
+          },
+          {
+            path: 'form-builder',
+            element: <FormBuilderPage />,
           },
         ],
       },

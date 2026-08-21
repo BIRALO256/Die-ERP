@@ -24,38 +24,37 @@ export default function ReportsPage() {
   const { incomeStatement, balanceSheet, batchProfitability } = financialStatements
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-slate-200/80">
-        <div>
-          <div className="flex items-center space-x-3">
-            <h1 className="medical-title">Financial & Regulatory Reports</h1>
-            <span className="hidden sm:inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#143d1d]/10 text-[#166534] border border-[#143d1d]/20">
-              IFRS / GMP Audit Ready
-            </span>
-          </div>
-          <p className="medical-body mt-1 text-xs sm:text-sm text-slate-500">
-            Real-time P&L, balance sheet, cash flows, and batch manufacturing profitability analytics
-          </p>
+    <div className="space-y-4">
+      {/* Compact Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2 border-b border-border">
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <h1 className="text-lg font-bold text-foreground tracking-tight" style={{ fontFamily: 'Poppins, Inter, sans-serif' }}>
+            Financial & Regulatory Statements
+          </h1>
+          <span className="text-slate-300">·</span>
+          <span className="text-xs text-slate-500 font-medium">P&L, Balance Sheet & Batch Margins</span>
+          <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200/60 px-2 py-0.5 rounded-md">
+            Audit-Ready
+          </span>
         </div>
 
-        <div className="flex items-center space-x-2.5">
+        <div className="flex items-center gap-2">
           <Button
             variant="outline"
             size="sm"
             onClick={() => handleExport('csv')}
-            className="text-xs font-semibold border-slate-200 text-slate-700 cursor-pointer"
+            className="text-xs font-semibold border-border text-slate-600 bg-white hover:bg-background h-auto px-3 py-1.5 cursor-pointer"
           >
-            <Download className="h-3.5 w-3.5 mr-1.5 text-slate-500" />
-            Export CSV
+            <Download className="h-3.5 w-3.5 mr-1 text-slate-400" />
+            CSV
           </Button>
           <Button
             size="sm"
             onClick={() => handleExport('pdf')}
-            className="bg-[#c8102e] hover:bg-[#a80e27] text-white text-xs font-semibold shadow-xs cursor-pointer"
+            className="bg-primary hover:bg-primary-hover text-white text-xs font-semibold h-auto px-3 py-1.5 shadow-2xs cursor-pointer"
           >
-            <Printer className="h-3.5 w-3.5 mr-1.5" />
-            Download PDF Report
+            <Printer className="h-3.5 w-3.5 mr-1" />
+            PDF Report
           </Button>
         </div>
       </div>

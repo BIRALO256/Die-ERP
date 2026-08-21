@@ -1,15 +1,11 @@
 import { useState } from 'react'
-import { 
-  CreditCard, 
+import {  
   Plus, 
   Search, 
-  CheckCircle2, 
+  Receipt,
   AlertTriangle, 
-  Receipt, 
   X,
-  Building,
   ShieldCheck,
-  Zap,
   Check,
   Ban
 } from 'lucide-react'
@@ -141,105 +137,87 @@ export default function ExpensesPage() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-slate-200/80">
-        <div>
-          <div className="flex items-center space-x-3">
-            <h1 className="medical-title">Expenses, OpEx & CapEx</h1>
-            <span className="hidden sm:inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#c8102e]/10 text-[#c8102e] border border-[#c8102e]/20">
-              Disbursements
-            </span>
-          </div>
-          <p className="medical-body mt-1 text-xs sm:text-sm text-slate-500">
-            Vendor procurement bills, cleanroom utilities, capital investments, and executive sign-off queue
-          </p>
+    <div className="space-y-4">
+      {/* Compact Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2 border-b border-border">
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <h1 className="text-lg font-bold text-foreground tracking-tight" style={{ fontFamily: 'Poppins, Inter, sans-serif' }}>
+            Expenses & Disbursements
+          </h1>
+          <span className="text-slate-300">·</span>
+          <span className="text-xs text-slate-500 font-medium">OpEx, Utilities & CapEx</span>
+          <span className="text-[10px] font-semibold text-slate-700 bg-slate-100 border border-slate-200/80 px-2 py-0.5 rounded-md">
+            Payables
+          </span>
         </div>
 
-        <div className="flex items-center space-x-2.5">
+        <div className="flex items-center gap-2">
           <Button
             onClick={() => setShowAddModal(true)}
             size="sm"
-            className="bg-[#c8102e] hover:bg-[#a80e27] text-white text-xs font-semibold shadow-xs cursor-pointer"
+            className="bg-primary hover:bg-primary-hover text-white text-xs font-semibold px-3 py-1.5 h-auto shadow-2xs cursor-pointer"
           >
-            <Plus className="h-4 w-4 mr-1.5" />
-            Record Expense / Bill
+            <Plus className="h-3.5 w-3.5 mr-1" />
+            Record Expense
           </Button>
         </div>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {/* Compact KPI Cards */}
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {/* Total OpEx */}
-        <div className="pharmacy-stat-card border border-slate-200 bg-white">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="medical-caption uppercase tracking-wider text-slate-500">Operational OpEx</p>
-              <h2 className="text-2xl font-extrabold text-slate-900 mt-1 tracking-tight">
-                ${(totalOpEx / 1000).toFixed(0)}K
-              </h2>
-            </div>
-            <div className="h-9 w-9 bg-amber-50 rounded-xl flex items-center justify-center text-amber-700">
-              <Zap className="h-5 w-5" />
-            </div>
+        <div className="bg-[#f6f5f1] rounded-xl border border-border p-3.5 flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <p className="text-[11px] font-medium text-slate-500">Operational OpEx</p>
+            <span className="text-[10px] font-medium text-slate-400">Power & WFI</span>
           </div>
-          <p className="text-xs text-slate-500 font-medium mt-3">
-            Cleanroom power, WFI water & cold chain
-          </p>
+          <div className="mt-1">
+            <p className="text-xl font-bold text-foreground leading-none tracking-tight tabular-nums">
+              ${(totalOpEx / 1000).toFixed(0)}K
+            </p>
+          </div>
         </div>
 
         {/* CapEx Machinery */}
-        <div className="pharmacy-stat-card border border-slate-200 bg-white">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="medical-caption uppercase tracking-wider text-slate-500">CapEx Machinery</p>
-              <h2 className="text-2xl font-extrabold text-slate-900 mt-1 tracking-tight">
-                ${(totalCapEx / 1000).toFixed(0)}K
-              </h2>
-            </div>
-            <div className="h-9 w-9 bg-purple-50 rounded-xl flex items-center justify-center text-purple-700">
-              <Building className="h-5 w-5" />
-            </div>
+        <div className="bg-[#f6f5f1] rounded-xl border border-border p-3.5 flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <p className="text-[11px] font-medium text-slate-500">CapEx Machinery</p>
+            <span className="text-[10px] font-medium text-slate-400">Bioreactors</span>
           </div>
-          <p className="text-xs text-purple-700 font-semibold mt-3">
-            Sartorius 2000L Bioreactors
-          </p>
+          <div className="mt-1">
+            <p className="text-xl font-bold text-foreground leading-none tracking-tight tabular-nums">
+              ${(totalCapEx / 1000).toFixed(0)}K
+            </p>
+          </div>
         </div>
 
         {/* Pending Sign-Offs */}
-        <div className="pharmacy-stat-card border border-slate-200 bg-white">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="medical-caption uppercase tracking-wider text-slate-500">Pending Authorization</p>
-              <h2 className="text-2xl font-extrabold text-[#c8102e] mt-1 tracking-tight">
-                {pendingApprovals.length} Bills
-              </h2>
-            </div>
-            <div className="h-9 w-9 bg-red-50 rounded-xl flex items-center justify-center text-[#c8102e]">
-              <AlertTriangle className="h-5 w-5" />
-            </div>
+        <div className="bg-[#f6f5f1] rounded-xl border border-border p-3.5 flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <p className="text-[11px] font-medium text-slate-500">Pending Sign-off</p>
+            <span className="text-[10px] font-bold text-primary flex items-center gap-1">
+              <AlertTriangle className="h-3 w-3" />
+              Action Req.
+            </span>
           </div>
-          <p className="text-xs text-[#c8102e] font-semibold mt-3">
-            Requires Executive Director Sign-off
-          </p>
+          <div className="mt-1">
+            <p className="text-xl font-bold text-primary leading-none tracking-tight tabular-nums">
+              {pendingApprovals.length} {pendingApprovals.length === 1 ? 'Bill' : 'Bills'}
+            </p>
+          </div>
         </div>
 
         {/* Total Settled */}
-        <div className="pharmacy-stat-card border border-slate-200 bg-white">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="medical-caption uppercase tracking-wider text-slate-500">Settled Outflows</p>
-              <h2 className="text-2xl font-extrabold text-slate-900 mt-1 tracking-tight">
-                ${(totalPaid / 1000).toFixed(0)}K
-              </h2>
-            </div>
-            <div className="h-9 w-9 bg-emerald-50 rounded-xl flex items-center justify-center text-[#166534]">
-              <CheckCircle2 className="h-5 w-5" />
-            </div>
+        <div className="bg-[#f6f5f1] rounded-xl border border-border p-3.5 flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <p className="text-[11px] font-medium text-slate-500">Settled Outflows</p>
+            <span className="text-[10px] font-semibold text-emerald-600">Disbursed</span>
           </div>
-          <p className="text-xs text-emerald-700 font-semibold mt-3">
-            Paid to Schott Pharma & Lonza
-          </p>
+          <div className="mt-1">
+            <p className="text-xl font-bold text-foreground leading-none tracking-tight tabular-nums">
+              ${(totalPaid / 1000).toFixed(0)}K
+            </p>
+          </div>
         </div>
       </div>
 
