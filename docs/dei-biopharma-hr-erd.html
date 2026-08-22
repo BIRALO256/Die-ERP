@@ -3,160 +3,449 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dei BioPharma HR Microservice ERD & Schema Mapping</title>
+  <title>Dei BioPharma — Unified HR & IAM Architecture Guide</title>
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
       --primary: #C8102E;
-      --accent: #143D1D;
-      --bg: #F8FAFC;
+      --primary-light: #FDF2F4;
+      --primary-border: #F8D7DC;
+      --forest: #143D1D;
+      --forest-light: #F0FDF4;
+      --canvas: #F8FAFC;
       --card-bg: #FFFFFF;
       --text: #0F172A;
+      --text-muted: #64748B;
       --border: #E2E8F0;
+      --border-subtle: #F1F5F9;
+      --surface-warm: #F6F5F1;
+    }
+    * {
+      box-sizing: border-box;
     }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background-color: var(--bg);
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--canvas);
       color: var(--text);
-      line-height: 1.5;
+      line-height: 1.6;
       margin: 0;
-      padding: 24px;
+      padding: 40px 24px;
+      -webkit-font-smoothing: antialiased;
     }
     .container {
-      max-width: 1200px;
+      max-width: 1280px;
       margin: 0 auto;
     }
-    header {
+    
+    /* Clean Header */
+    .hero-header {
       background: var(--card-bg);
       border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 24px;
-      margin-bottom: 24px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      border-radius: 20px;
+      padding: 32px 36px;
+      margin-bottom: 28px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 5px;
+      background: var(--primary);
+    }
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--primary-light);
+      border: 1px solid var(--primary-border);
+      color: var(--primary);
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
     }
     h1 {
       margin: 0 0 8px 0;
-      font-size: 24px;
+      font-size: 26px;
+      font-weight: 800;
       color: var(--text);
-      display: flex;
-      align-items: center;
-      gap: 12px;
+      letter-spacing: -0.5px;
     }
-    .badge {
-      background: rgba(200, 16, 46, 0.1);
-      color: var(--primary);
-      padding: 4px 10px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 700;
+    .subtitle {
+      margin: 0;
+      color: var(--text-muted);
+      font-size: 14px;
+      max-width: 860px;
+      line-height: 1.5;
     }
+
+    /* Cards */
     .card {
       background: var(--card-bg);
       border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 24px;
-      margin-bottom: 24px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-      overflow-x: auto;
+      border-radius: 20px;
+      padding: 28px 32px;
+      margin-bottom: 28px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 16px;
+      margin-bottom: 20px;
+      flex-wrap: gap;
     }
     h2 {
-      font-size: 18px;
-      margin-top: 0;
-      margin-bottom: 16px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid var(--border);
-      color: var(--accent);
+      font-size: 16px;
+      font-weight: 800;
+      margin: 0;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      letter-spacing: -0.3px;
     }
+
+    /* Badges */
+    .badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 8px;
+      border: 1px solid;
+    }
+    .badge-green { background: #ECFDF5; color: #047857; border-color: #A7F3D0; }
+    .badge-blue { background: #EFF6FF; color: #1D4ED8; border-color: #BFDBFE; }
+    .badge-slate { background: #F8FAFC; color: #475569; border-color: #E2E8F0; }
+
+    /* Evolution Grid */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 860px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+    .box-evolution {
+      background: #FAFAFA;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px 22px;
+    }
+    .box-header {
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .text-slate { color: #475569; }
+    .text-green { color: #059669; }
+
+    .evolution-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .evolution-item {
+      font-size: 12.5px;
+      color: #334155;
+      line-height: 1.5;
+    }
+    .evolution-item strong {
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    /* Tables */
     table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 13px;
-      margin-top: 12px;
+      font-size: 12.5px;
+      margin-top: 8px;
     }
     th, td {
       border: 1px solid var(--border);
-      padding: 10px 12px;
+      padding: 11px 14px;
       text-align: left;
+      vertical-align: top;
     }
     th {
-      background-color: #F1F5F9;
-      font-weight: 600;
+      background-color: #F8FAFC;
+      font-weight: 700;
+      color: #334155;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
-    pre {
-      background: #0F172A;
-      color: #F8FAFC;
-      padding: 16px;
-      border-radius: 12px;
-      font-size: 12px;
+    td code {
+      background: #F1F5F9;
+      padding: 2px 6px;
+      border-radius: 5px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      color: var(--primary);
+      font-weight: 500;
+    }
+
+    .mermaid-wrapper {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
       overflow-x: auto;
     }
   </style>
   <script>
-    mermaid.initialize({ startOnLoad: true, theme: 'neutral' });
+    mermaid.initialize({ 
+      startOnLoad: true, 
+      theme: 'neutral',
+      themeVariables: {
+        primaryColor: '#F8FAFC',
+        primaryTextColor: '#0F172A',
+        primaryBorderColor: '#CBD5E1',
+        lineColor: '#64748B',
+        secondaryColor: '#FFFFFF',
+        tertiaryColor: '#FFFFFF'
+      }
+    });
   </script>
 </head>
 <body>
   <div class="container">
-    <header>
-      <h1>Dei BioPharma HR Microservice ERD & Schema Mapping <span class="badge">v2.0 Multi-Facility</span></h1>
-      <p style="margin: 0; color: #64748B; font-size: 14px;">
-        Interactive Database Architecture for Matugga GMP Bio-Plant, Kakiika Clinical Trials, Nakaseke Bio-Agro, and Global Corporate HQ.
-      </p>
-    </header>
 
+    <!-- HERO HEADER -->
+    <div class="hero-header">
+      <div class="hero-tag">
+        <span>Architecture Reference</span>
+      </div>
+      <h1>Dei BioPharma — Unified HR & IAM Data Architecture</h1>
+      <p class="subtitle">
+        An enterprise multi-facility architecture integrating <strong>Organizational Units</strong> (Matugga, Kakiika, Nakaseke, Corporate HQ), <strong>Access Control (IAM)</strong>, <strong>Dynamic Schema-Driven Intake</strong>, and <strong>21 CFR Part 11 Audit Trails</strong>.
+      </p>
+    </div>
+
+    <!-- COLLABORATIVE ARCHITECTURE EVOLUTION -->
     <div class="card">
-      <h2>1. Visual Entity Relationship Diagram</h2>
-      <div class="mermaid">
+      <div class="card-header">
+        <h2>🤝 Architecture Evolution & Collaborative Refinements</h2>
+        <span class="badge badge-slate">Design Evolution</span>
+      </div>
+
+      <div class="grid-2">
+        <div class="box-evolution">
+          <div class="box-header text-slate">
+            <span>📋 Team Baseline Draft</span>
+          </div>
+          <ul class="evolution-list">
+            <li class="evolution-item">
+              <strong>1. Direct User-Employee FK</strong>: <code>users.employee_id</code> established basic linking between login credentials and staff records.
+            </li>
+            <li class="evolution-item">
+              <strong>2. Flat Role Definitions</strong>: Standard role table covered single-facility permission assignments.
+            </li>
+            <li class="evolution-item">
+              <strong>3. Static Bio-Data Columns</strong>: Captured initial paper registration fields as fixed SQL columns.
+            </li>
+            <li class="evolution-item">
+              <strong>4. Core Payroll Elements</strong>: Established baseline salary and basic statutory deduction fields.
+            </li>
+          </ul>
+        </div>
+
+        <div class="box-evolution" style="background: #F8FAF9; border-color: #D1FAE5;">
+          <div class="box-header text-green">
+            <span>🚀 Enterprise Multi-Facility Enhancements</span>
+          </div>
+          <ul class="evolution-list">
+            <li class="evolution-item">
+              <strong>1. Decoupled IAM & HR</strong>: <code>employees.user_id</code> (nullable) allows external auditors & IT admins to have system accounts without requiring HR contracts.
+            </li>
+            <li class="evolution-item">
+              <strong>2. Facility-Scoped RBAC</strong>: Added <code>organization_unit_id</code> to <code>user_role_assignments</code>, enabling cross-facility roles with a single login.
+            </li>
+            <li class="evolution-item">
+              <strong>3. Dynamic Schema Engine</strong>: Integrated <code>form_schemas</code> and <code>custom_fields JSONB</code>, allowing new fields (e.g. Blood Group, RFID) without DB migrations.
+            </li>
+            <li class="evolution-item">
+              <strong>4. 21 CFR Part 11 Audit Trail</strong>: Added immutable <code>audit_logs</code> entity tracking record changes, timestamps, and IP addresses for WHO/FDA compliance.
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN MERMAID ERD -->
+    <div class="card">
+      <div class="card-header">
+        <h2>1. Complete Unified Entity-Relationship Diagram</h2>
+        <span class="badge badge-green">WHO GMP & 21 CFR Compliant</span>
+      </div>
+
+      <div class="mermaid-wrapper">
+        <div class="mermaid">
 erDiagram
-    ORGANIZATION_UNITS ||--o{ EMPLOYEES : "employs"
+    %% ORGANIZATIONAL STRUCTURE
+    LOCATIONS ||--o{ ORGANIZATIONS : "located at"
+    LOCATIONS ||--o{ ORGANIZATION_UNITS : "situated at"
+    ORGANIZATIONS ||--o{ ORGANIZATION_UNITS : "owns / operates"
+
+    %% AUTHENTICATION & MULTI-FACILITY ACCESS (IAM)
+    USERS ||--o{ USER_ROLE_ASSIGNMENTS : "assigned roles"
+    ROLES ||--o{ USER_ROLE_ASSIGNMENTS : "granted in"
+    ORGANIZATION_UNITS ||--o{ USER_ROLE_ASSIGNMENTS : "scoped to facility"
+    ROLES ||--o{ ROLE_PERMISSIONS : "has"
+    PERMISSIONS ||--o{ ROLE_PERMISSIONS : "assigned to"
+    USERS ||--o{ USER_SESSIONS : "opens"
+    USERS ||--o{ AUDIT_LOGS : "performed by"
+
+    %% HR MICROSERVICE & EMPLOYEES
+    ORGANIZATION_UNITS ||--o{ EMPLOYEES : "employs (home facility)"
     ORGANIZATION_UNITS ||--o{ SHIFT_ASSIGNMENTS : "schedules at"
     ORGANIZATION_UNITS ||--o{ PAYROLL_RUNS : "runs payroll for"
+    USERS ||--o| EMPLOYEES : "authenticates (optional 1:1)"
+    FORM_SCHEMAS ||--o{ EMPLOYEES : "intake schema version"
 
-    EMPLOYEES ||--o{ EMPLOYEE_DEPENDENTS : "has family"
-    EMPLOYEES ||--o{ EMERGENCY_CONTACTS : "designates"
-    EMPLOYEES ||--o{ EDUCATION_RECORDS : "holds degrees"
-    EMPLOYEES ||--o{ EMPLOYMENT_HISTORY : "has past experience"
-    EMPLOYEES ||--o{ EMPLOYEE_CERTIFICATIONS : "maintains licenses"
-    EMPLOYEES ||--o{ SHIFT_ASSIGNMENTS : "assigned to"
-    EMPLOYEES ||--o{ PAYSLIPS : "receives"
+    EMPLOYEES ||--o{ EMPLOYEE_DEPENDENTS : "has family (1:N)"
+    EMPLOYEES ||--o{ EMERGENCY_CONTACTS : "designates (1:N)"
+    EMPLOYEES ||--o{ EDUCATION_RECORDS : "holds degrees (1:N)"
+    EMPLOYEES ||--o{ EMPLOYMENT_HISTORY : "career history (1:N)"
+    EMPLOYEES ||--o{ EMPLOYEE_CERTIFICATIONS : "maintains licenses (1:N)"
+    EMPLOYEES ||--o{ SHIFT_ASSIGNMENTS : "assigned to (1:N)"
+    EMPLOYEES ||--o{ PAYSLIPS : "receives monthly pay (1:N)"
 
-    PAYROLL_RUNS ||--o{ PAYSLIPS : "contains"
+    %% PAYROLL & COMPENSATION
+    PAYROLL_RUNS ||--o{ PAYSLIPS : "contains batch slips"
+
+    LOCATIONS {
+        bigint id PK
+        varchar name "Matugga Campus, Nakasero HQ"
+        varchar address_line_1
+        varchar city "Wakiso, Kampala, Mbarara"
+        varchar country "Uganda"
+    }
+
+    ORGANIZATIONS {
+        bigint id PK
+        bigint location_id FK
+        varchar name "Dei BioPharma Holding Ltd"
+        varchar legal_registration_no "URSB-REG-99042"
+        varchar entity_type "CONGLOMERATE"
+    }
+
+    ORGANIZATION_UNITS {
+        bigint id PK
+        bigint organization_id FK
+        bigint location_id FK
+        varchar code UK "MAT-GMP, KAK-CLINIC, NAK-AGRO, DEI-HQ"
+        varchar name "Matugga GMP Bio-Plant"
+        varchar unit_type "MANUFACTURING, CLINICAL, AGRICULTURE, CORPORATE"
+        boolean is_gmp_certified
+    }
+
+    USERS {
+        uuid id PK
+        varchar username UK
+        varchar email UK
+        varchar password_hash
+        boolean is_active
+        integer failed_login_count
+        timestamp last_login_at
+    }
+
+    ROLES {
+        bigint id PK
+        varchar role_code UK "ROLE_QA_DIRECTOR, ROLE_CLINICAL_MONITOR"
+        varchar role_name "QA Director & Lead Scientist"
+        boolean is_system_role
+    }
+
+    PERMISSIONS {
+        bigint id PK
+        varchar permission_code UK "hr:view_employees, batch:release_qc"
+        varchar module_code "HR, BATCH_MES, FINANCE, CLINICAL"
+        varchar resource "EMPLOYEES, BIOREACTORS"
+        varchar action "READ, WRITE, APPROVE"
+    }
+
+    USER_ROLE_ASSIGNMENTS {
+        bigint id PK
+        uuid user_id FK
+        bigint role_id FK
+        bigint organization_unit_id FK "Facility scope: Matugga vs Kakiika"
+        timestamp start_at
+        timestamp end_at
+        varchar status "ACTIVE, REVOKED"
+    }
+
+    FORM_SCHEMAS {
+        bigint id PK
+        bigint organization_id FK "Tenant scope"
+        varchar version_code UK "v1.0, v2.0, v3.0"
+        varchar title "Standard Baseline, Extended Clinical"
+        jsonb schema_definition "Dynamic sections & custom fields"
+        date effective_date
+        boolean is_active
+    }
 
     EMPLOYEES {
         bigint id PK
-        uuid user_id FK
-        bigint organization_unit_id FK
-        varchar employee_number
-        varchar full_name
-        varchar national_id_nin
+        uuid user_id FK "Nullable link to IAM login"
+        bigint organization_unit_id FK "Home base facility"
+        varchar employee_number UK "e.g. DEI-MAT-0101"
+        varchar full_name "Full Legal Name"
+        varchar national_id_nin UK "Uganda NIN"
         date date_of_birth
-        varchar gender
-        varchar marital_status
+        varchar gender "MALE, FEMALE, OTHER"
+        varchar marital_status "SINGLE, MARRIED, DIVORCED"
         varchar place_of_residence
         varchar city
         varchar phone_number
         varchar personal_email
-        varchar job_title
-        varchar department
-        bigint manager_supervisor_id FK
+        varchar job_title "QA Director"
+        varchar department "Quality Assurance"
+        bigint manager_supervisor_id FK "Self-referencing manager"
         date hire_date
-        varchar employment_status
-        varchar employment_type
-        varchar base_currency
+        varchar employment_status "FULL_TIME, CONTRACT"
+        varchar employment_type "PERMANENT, EXPATRIATE"
+        varchar base_currency "USD, UGX"
         decimal base_salary
-        varchar status
-        varchar form_version
-        jsonb custom_fields
+        varchar status "ACTIVE, ON_LEAVE, SUSPENDED"
+        varchar form_version FK "Links to FORM_SCHEMAS"
+        jsonb custom_fields "Dynamic bag: {blood_group, biometric_badge_id}"
+        timestamp created_at
     }
 
     EMPLOYEE_DEPENDENTS {
         bigint id PK
         bigint employee_id FK
-        varchar relationship_type
+        varchar relationship_type "SPOUSE, CHILD, PARENT, SIBLING"
         varchar full_name
         date date_of_birth
         integer age
-        varchar gender
+        varchar gender "MALE, FEMALE"
         varchar phone_number
         boolean is_emergency_contact
     }
@@ -164,9 +453,9 @@ erDiagram
     EMERGENCY_CONTACTS {
         bigint id PK
         bigint employee_id FK
-        integer priority
+        integer priority "1 = Primary, 2 = Secondary"
         varchar contact_name
-        varchar relationship
+        varchar relationship "Spouse, Brother"
         varchar primary_phone
         varchar alternate_phone
     }
@@ -174,56 +463,56 @@ erDiagram
     EDUCATION_RECORDS {
         bigint id PK
         bigint employee_id FK
-        varchar degree_title
-        varchar institution
+        varchar degree_title "PhD Molecular Biotechnology"
+        varchar institution "Makerere University"
         integer graduation_year
-        varchar grade_classification
+        varchar grade_classification "First Class"
     }
 
     EMPLOYMENT_HISTORY {
         bigint id PK
         bigint employee_id FK
-        varchar previous_employer
-        varchar job_title
-        varchar duration_from_to
+        varchar previous_employer "Lonza Biologics"
+        varchar job_title "Senior Fermentation Scientist"
+        varchar duration_from_to "2019 - 2024"
         text key_responsibilities
     }
 
     EMPLOYEE_CERTIFICATIONS {
         bigint id PK
         bigint employee_id FK
-        varchar cert_type
-        varchar cert_name
-        varchar issuing_body
+        varchar cert_type "GMP_CLEANROOM, GCP_CLINICAL, GAP_ORGANIC"
+        varchar cert_name "Grade A Sterile Cleanroom Qualification"
+        varchar issuing_body "WHO / NDA"
         varchar license_number
         date issue_date
         date expiry_date
-        varchar verification_status
+        varchar verification_status "VALID, EXPIRING_SOON, EXPIRED"
     }
 
     SHIFT_ASSIGNMENTS {
         bigint id PK
         bigint employee_id FK
         bigint organization_unit_id FK
-        varchar shift_code
-        varchar production_line
+        varchar shift_code "SHIFT_A_MORNING, SHIFT_B_EVENING"
+        varchar production_line "Bioreactor Bay 2"
         date start_date
         date end_date
-        varchar status
+        varchar status "SCHEDULED, ON_DUTY, COMPLETED"
     }
 
     PAYROLL_RUNS {
         bigint id PK
         bigint organization_unit_id FK
-        varchar batch_number
-        varchar period_month_year
-        varchar currency
+        varchar batch_number UK "PAY-2026-08-MAT"
+        varchar period_month_year "August 2026"
+        varchar currency "USD, UGX"
         decimal total_gross_pay
-        decimal total_nssf_employer
-        decimal total_nssf_employee
-        decimal total_paye_tax
+        decimal total_nssf_employer "10% match"
+        decimal total_nssf_employee "5% deduction"
+        decimal total_paye_tax "URA PAYE"
         decimal total_net_disbursed
-        varchar status
+        varchar status "DRAFT, REVIEWED, APPROVED, DISBURSED"
     }
 
     PAYSLIPS {
@@ -231,108 +520,94 @@ erDiagram
         bigint payroll_run_id FK
         bigint employee_id FK
         decimal base_salary
-        decimal hazard_allowance
-        decimal overtime_allowance
+        decimal hazard_allowance "BSL-3 hazard pay"
         decimal gross_pay
-        decimal nssf_employee_deduction
-        decimal paye_tax_deduction
-        decimal local_service_tax
-        decimal other_deductions
+        decimal nssf_employee_deduction "5%"
+        decimal paye_tax_deduction "URA PAYE"
+        decimal local_service_tax "LST"
         decimal net_pay
-        varchar payment_method
-        varchar bank_name
-        varchar bank_account_no
-        varchar status
+        varchar status "GENERATED, PAID"
     }
+
+    AUDIT_LOGS {
+        bigint id PK
+        uuid user_id FK
+        bigint organization_unit_id FK
+        varchar action "EMPLOYEE_ONBOARDED, CERT_RENEWED"
+        varchar entity_type "EMPLOYEES, CERTIFICATIONS"
+        bigint entity_id
+        jsonb previous_state
+        jsonb new_state
+        varchar ip_address
+        timestamp timestamp
+    }
+        </div>
       </div>
     </div>
 
+    <!-- DATA MAPPING & REASONING -->
     <div class="card">
-      <h2>2. Bio-Data Form ➔ Database Column Mapping</h2>
+      <div class="card-header">
+        <h2>2. Data Mapping & Architecture Breakdown</h2>
+        <span class="badge badge-blue">Relational & JSONB Storage</span>
+      </div>
+
       <table>
         <thead>
           <tr>
-            <th>Paper Bio-Data Field</th>
+            <th>Functional Layer</th>
             <th>Database Table</th>
-            <th>Target Column</th>
-            <th>Data Type</th>
-            <th>Notes & Extensibility</th>
+            <th>Relationship Type</th>
+            <th>Architecture Rationale</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><strong>Full Name</strong></td>
-            <td><code>employees</code></td>
-            <td><code>full_name</code></td>
-            <td>VARCHAR(255)</td>
-            <td>Full legal name</td>
+            <td><strong>Corporate Structure</strong></td>
+            <td><code>organizations</code> ➔ <code>organization_units</code></td>
+            <td>1 : N</td>
+            <td>Allows Dei Group holding to operate multiple legal entities and separate facility cost centers.</td>
           </tr>
           <tr>
-            <td><strong>Start Date</strong></td>
-            <td><code>employees</code></td>
-            <td><code>hire_date</code></td>
-            <td>DATE</td>
-            <td>Operational start date</td>
+            <td><strong>Identity & IAM</strong></td>
+            <td><code>users</code> ➔ <code>user_role_assignments</code></td>
+            <td>1 : N (Facility Scoped)</td>
+            <td>Enables a single login with different clearance tiers across Matugga (Tier 1 GMP), Kakiika (Tier 2 GCP), and Nakaseke (Tier 3 GAP).</td>
           </tr>
           <tr>
-            <td><strong>NIN Number</strong></td>
+            <td><strong>Core Personnel</strong></td>
             <td><code>employees</code></td>
-            <td><code>national_id_nin</code></td>
-            <td>VARCHAR(50)</td>
-            <td>Uganda National Identification Number (Unique)</td>
+            <td>Central Entity</td>
+            <td>Decoupled from <code>users</code>. Stores legal labor contract, NIN, and home payroll facility.</td>
           </tr>
           <tr>
-            <td><strong>Marital status</strong></td>
-            <td><code>employees</code></td>
-            <td><code>marital_status</code></td>
-            <td>VARCHAR(30)</td>
-            <td>Single, Married, Divorced, Widowed, Separated</td>
-          </tr>
-          <tr>
-            <td><strong>Spouse Details</strong></td>
+            <td><strong>Family & Dependents</strong></td>
             <td><code>employee_dependents</code></td>
-            <td><code>full_name, phone_number</code></td>
-            <td>VARCHAR(255)</td>
-            <td><code>relationship_type = 'SPOUSE'</code></td>
+            <td>1 : N (SQL Rows)</td>
+            <td>Allows unlimited children and spouses per employee for healthcare coverage.</td>
           </tr>
           <tr>
-            <td><strong>Children under 18 Details</strong></td>
-            <td><code>employee_dependents</code></td>
-            <td><code>full_name, date_of_birth, age, gender</code></td>
-            <td>Multiple Rows</td>
-            <td><code>relationship_type = 'CHILD'</code> (Extensible to any family member)</td>
+            <td><strong>Dynamic Intake Forms</strong></td>
+            <td><code>form_schemas</code> ➔ <code>employees.custom_fields</code></td>
+            <td>JSONB Extensible</td>
+            <td>Allows HR to add new questions (Blood Group, Biometric RFID, Health Insurance) without database schema migrations.</td>
           </tr>
           <tr>
-            <td><strong>Emergency Contacts 1 & 2</strong></td>
-            <td><code>emergency_contacts</code></td>
-            <td><code>contact_name, relationship, phone</code></td>
-            <td>Multiple Rows</td>
-            <td><code>priority = 1 | 2</code></td>
+            <td><strong>GMP Compliance</strong></td>
+            <td><code>employee_certifications</code></td>
+            <td>1 : N (Tracked)</td>
+            <td>Tracks license numbers, issuing bodies (WHO, NDA), and automated expiry alerts for 21 CFR compliance.</td>
           </tr>
           <tr>
-            <td><strong>Education Background</strong></td>
-            <td><code>education_records</code></td>
-            <td><code>degree_title, institution, year</code></td>
-            <td>Multiple Rows</td>
-            <td>Highest degree/diploma achieved</td>
-          </tr>
-          <tr>
-            <td><strong>Professional Experience</strong></td>
-            <td><code>employment_history</code></td>
-            <td><code>previous_employer, job_title, duration</code></td>
-            <td>Multiple Rows</td>
-            <td>Past employers & roles</td>
-          </tr>
-          <tr>
-            <td><strong>Languages Spoken</strong></td>
-            <td><code>employees</code></td>
-            <td><code>custom_fields->'languages'</code></td>
-            <td>JSONB Array</td>
-            <td>e.g. <code>["English", "Luganda", "Runyankole"]</code></td>
+            <td><strong>21 CFR Part 11 Audits</strong></td>
+            <td><code>audit_logs</code></td>
+            <td>Immutable Log</td>
+            <td>Meets international pharmaceutical regulatory requirements by logging who modified any record, when, and from which IP.</td>
           </tr>
         </tbody>
       </table>
     </div>
+
   </div>
 </body>
 </html>

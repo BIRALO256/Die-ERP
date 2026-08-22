@@ -1,34 +1,52 @@
-# Dei BioPharma ERP — HR Microservice Database Architecture & ERD Mapping
+# Dei BioPharma ERP — Unified Enterprise Architecture & ERD Mapping
 
-An enterprise-grade, multi-facility, and versioned database schema designed for **Dei BioPharma Ltd.** (Matugga GMP, Kakiika Clinical, Nakaseke Bio-Agro, and Corporate HQ).
+An enterprise-grade, multi-facility, and versioned database schema designed for **Dei BioPharma Ltd.** (Matugga GMP Bio-Plant, Kakiika Clinical Trials, Nakaseke Bio-Agro, and Corporate HQ).
 
 ---
 
-## 1. 📊 Visual Entity Relationship Diagram (ERD)
+## 1. 📊 Unified Visual Entity Relationship Diagram (ERD)
 
 ```mermaid
 erDiagram
-    ORGANIZATION_UNITS ||--o{ EMPLOYEES : "employs"
+    %% ORGANIZATIONAL STRUCTURE
+    LOCATIONS ||--o{ ORGANIZATIONS : "located at"
+    LOCATIONS ||--o{ ORGANIZATION_UNITS : "situated at"
+    ORGANIZATIONS ||--o{ ORGANIZATION_UNITS : "owns / operates"
+
+    %% AUTHENTICATION & MULTI-FACILITY ACCESS (IAM)
+    USERS ||--o{ USER_ROLE_ASSIGNMENTS : "assigned roles"
+    ROLES ||--o{ USER_ROLE_ASSIGNMENTS : "granted in"
+    ORGANIZATION_UNITS ||--o{ USER_ROLE_ASSIGNMENTS : "scoped to facility"
+    ROLES ||--o{ ROLE_PERMISSIONS : "has"
+    PERMISSIONS ||--o{ ROLE_PERMISSIONS : "assigned to"
+    USERS ||--o{ USER_SESSIONS : "opens"
+    USERS ||--o{ AUDIT_LOGS : "performed by"
+
+    %% HR MICROSERVICE & EMPLOYEES
+    ORGANIZATION_UNITS ||--o{ EMPLOYEES : "employs (home facility)"
     ORGANIZATION_UNITS ||--o{ SHIFT_ASSIGNMENTS : "schedules at"
     ORGANIZATION_UNITS ||--o{ PAYROLL_RUNS : "runs payroll for"
+    USERS ||--o| EMPLOYEES : "authenticates (optional 1:1)"
+    FORM_SCHEMAS ||--o{ EMPLOYEES : "intake schema version"
 
-    EMPLOYEES ||--o{ EMPLOYEE_DEPENDENTS : "has family"
-    EMPLOYEES ||--o{ EMERGENCY_CONTACTS : "designates"
-    EMPLOYEES ||--o{ EDUCATION_RECORDS : "holds degrees"
-    EMPLOYEES ||--o{ EMPLOYMENT_HISTORY : "has past experience"
-    EMPLOYEES ||--o{ EMPLOYEE_CERTIFICATIONS : "maintains licenses"
-    EMPLOYEES ||--o{ SHIFT_ASSIGNMENTS : "assigned to"
-    EMPLOYEES ||--o{ PAYSLIPS : "receives"
+    EMPLOYEES ||--o{ EMPLOYEE_DEPENDENTS : "has family (1:N)"
+    EMPLOYEES ||--o{ EMERGENCY_CONTACTS : "designates (1:N)"
+    EMPLOYEES ||--o{ EDUCATION_RECORDS : "holds degrees (1:N)"
+    EMPLOYEES ||--o{ EMPLOYMENT_HISTORY : "career history (1:N)"
+    EMPLOYEES ||--o{ EMPLOYEE_CERTIFICATIONS : "maintains licenses (1:N)"
+    EMPLOYEES ||--o{ SHIFT_ASSIGNMENTS : "assigned to (1:N)"
+    EMPLOYEES ||--o{ PAYSLIPS : "receives monthly pay (1:N)"
 
-    PAYROLL_RUNS ||--o{ PAYSLIPS : "contains"
+    %% PAYROLL & COMPENSATION
+    PAYROLL_RUNS ||--o{ PAYSLIPS : "contains batch slips"
 
     EMPLOYEES {
         bigint id PK
-        uuid user_id FK "Nullable link to IAM user account"
-        bigint organization_unit_id FK "Facility: Matugga, Kakiika, etc."
-        varchar employee_number "e.g. DEI-MAT-0142"
+        uuid user_id FK "Nullable link to IAM login"
+        bigint organization_unit_id FK "Home base facility"
+        varchar employee_number UK "e.g. DEI-MAT-0101"
         varchar full_name "Full Legal Name"
-        varchar national_id_nin "Uganda National ID / Passport"
+        varchar national_id_nin UK "Uganda NIN"
         date date_of_birth
         varchar gender "MALE, FEMALE, OTHER"
         varchar marital_status "SINGLE, MARRIED, DIVORCED, WIDOWED, SEPARATED"
@@ -36,103 +54,106 @@ erDiagram
         varchar city
         varchar phone_number
         varchar personal_email
-        varchar job_title "e.g. Senior Bioprocess Scientist"
-        varchar department "e.g. Upstream Vaccine Fermentation"
+        varchar job_title "QA Director"
+        varchar department "Quality Assurance"
         bigint manager_supervisor_id FK "Self-referencing manager"
-        date hire_date "Start Date"
-        varchar employment_status "FULL_TIME, PART_TIME, CONTRACT"
-        varchar employment_type "PERMANENT, EXPATRIATE, SEASONAL"
+        date hire_date
+        varchar employment_status "FULL_TIME, CONTRACT"
+        varchar employment_type "PERMANENT, EXPATRIATE"
         varchar base_currency "USD, UGX"
         decimal base_salary
-        varchar status "ACTIVE, ON_LEAVE, SUSPENDED, TERMINATED"
-        varchar form_version "e.g. v1.0, v2.0 for audit history"
-        jsonb custom_fields "Dynamic facility fields (BSL-3, gowning level, etc.)"
+        varchar status "ACTIVE, ON_LEAVE, SUSPENDED"
+        varchar form_version FK "Links to FORM_SCHEMAS"
+        jsonb custom_fields "Dynamic bag: {blood_group, biometric_badge_id}"
         timestamp created_at
         timestamp updated_at
+    }
+
+    FORM_SCHEMAS {
+        bigint id PK
+        bigint organization_id FK "Tenant scope"
+        varchar version_code UK "v1.0, v2.0, v3.0"
+        varchar title "Standard Baseline, Extended Clinical"
+        jsonb schema_definition "Dynamic sections & custom fields"
+        date effective_date
+        boolean is_active
     }
 
     EMPLOYEE_DEPENDENTS {
         bigint id PK
         bigint employee_id FK
-        varchar relationship_type "SPOUSE, CHILD, PARENT, SIBLING, OTHER"
+        varchar relationship_type "SPOUSE, CHILD, PARENT, SIBLING"
         varchar full_name
         date date_of_birth
         integer age
         varchar gender "MALE, FEMALE"
-        varchar phone_number "Spouse phone if applicable"
+        varchar phone_number
         boolean is_emergency_contact
-        timestamp created_at
     }
 
     EMERGENCY_CONTACTS {
         bigint id PK
         bigint employee_id FK
-        integer priority "1 or 2"
+        integer priority "1 = Primary, 2 = Secondary"
         varchar contact_name
-        varchar relationship "e.g. Spouse, Brother, Mother"
+        varchar relationship "Spouse, Brother"
         varchar primary_phone
         varchar alternate_phone
-        timestamp created_at
     }
 
     EDUCATION_RECORDS {
         bigint id PK
         bigint employee_id FK
-        varchar degree_title "Highest Degree / Certificate / Diploma"
-        varchar institution "University / College"
+        varchar degree_title "PhD Molecular Biotechnology"
+        varchar institution "Makerere University"
         integer graduation_year
-        varchar grade_classification
-        timestamp created_at
+        varchar grade_classification "First Class"
     }
 
     EMPLOYMENT_HISTORY {
         bigint id PK
         bigint employee_id FK
-        varchar previous_employer
-        varchar job_title
-        varchar duration_from_to "e.g. 2020 - 2024"
+        varchar previous_employer "Lonza Biologics"
+        varchar job_title "Senior Fermentation Scientist"
+        varchar duration_from_to "2019 - 2024"
         text key_responsibilities
-        timestamp created_at
     }
 
     EMPLOYEE_CERTIFICATIONS {
         bigint id PK
         bigint employee_id FK
-        varchar cert_type "GMP_CLEANROOM, GCP_CLINICAL, GAP_ORGANIC, BSL3"
-        varchar cert_name "e.g. Grade A Aseptic Gowning Qualification"
-        varchar issuing_body "e.g. WHO / NDA / Dei Quality Unit"
+        varchar cert_type "GMP_CLEANROOM, GCP_CLINICAL, GAP_ORGANIC"
+        varchar cert_name "Grade A Sterile Cleanroom Qualification"
+        varchar issuing_body "WHO / NDA"
         varchar license_number
         date issue_date
         date expiry_date
         varchar verification_status "VALID, EXPIRING_SOON, EXPIRED"
-        timestamp created_at
     }
 
     SHIFT_ASSIGNMENTS {
         bigint id PK
         bigint employee_id FK
         bigint organization_unit_id FK
-        varchar shift_code "SHIFT_A_MORNING, SHIFT_B_EVENING, SHIFT_C_NIGHT"
-        varchar production_line "e.g. Bioreactor Line 1, Lyophilization"
+        varchar shift_code "SHIFT_A_MORNING, SHIFT_B_EVENING"
+        varchar production_line "Bioreactor Bay 2"
         date start_date
         date end_date
-        varchar status "SCHEDULED, ON_DUTY, COMPLETED, ABSENT"
-        timestamp created_at
+        varchar status "SCHEDULED, ON_DUTY, COMPLETED"
     }
 
     PAYROLL_RUNS {
         bigint id PK
         bigint organization_unit_id FK
-        varchar batch_number "e.g. PAY-2026-08-MAT"
+        varchar batch_number UK "PAY-2026-08-MAT"
         varchar period_month_year "August 2026"
         varchar currency "USD, UGX"
         decimal total_gross_pay
-        decimal total_nssf_employer "10%"
-        decimal total_nssf_employee "5%"
-        decimal total_paye_tax "Uganda URA PAYE"
+        decimal total_nssf_employer "10% match"
+        decimal total_nssf_employee "5% deduction"
+        decimal total_paye_tax "URA PAYE"
         decimal total_net_disbursed
         varchar status "DRAFT, REVIEWED, APPROVED, DISBURSED"
-        timestamp processed_at
     }
 
     PAYSLIPS {
@@ -140,64 +161,124 @@ erDiagram
         bigint payroll_run_id FK
         bigint employee_id FK
         decimal base_salary
-        decimal hazard_allowance "BSL-3 / Biotech Hazard Pay"
-        decimal overtime_allowance
+        decimal hazard_allowance "BSL-3 hazard pay"
         decimal gross_pay
         decimal nssf_employee_deduction "5%"
-        decimal paye_tax_deduction "Uganda PAYE"
+        decimal paye_tax_deduction "URA PAYE"
         decimal local_service_tax "LST"
-        decimal other_deductions
         decimal net_pay
-        varchar payment_method "BANK_TRANSFER, MOBILE_MONEY"
-        varchar bank_name
-        varchar bank_account_no
         varchar status "GENERATED, PAID"
-        timestamp created_at
+    }
+
+    AUDIT_LOGS {
+        bigint id PK
+        uuid user_id FK
+        bigint organization_unit_id FK
+        varchar action "EMPLOYEE_ONBOARDED, CERT_RENEWED"
+        varchar entity_type "EMPLOYEES, CERTIFICATIONS"
+        bigint entity_id
+        jsonb previous_state
+        jsonb new_state
+        varchar ip_address
+        timestamp timestamp
     }
 ```
 
 ---
 
-## 2. 📋 Bio-Data Form ➔ Database Column Mapping
+## 2. 🤝 Architecture Evolution & Collaborative Refinements
 
-| Paper Bio-Data Field | Database Table | Target Column | Data Type | Notes / Extensibility |
-| :--- | :--- | :--- | :--- | :--- |
-| **Full Name** | `employees` | `full_name` | `VARCHAR(255)` | Legal identity |
-| **Start Date** | `employees` | `hire_date` | `DATE` | Operational start date |
-| **Date of Birth** | `employees` | `date_of_birth` | `DATE` | Date format `YYYY-MM-DD` |
-| **Gender** | `employees` | `gender` | `VARCHAR(20)` | `MALE`, `FEMALE`, `OTHER` |
-| **Marital status** | `employees` | `marital_status` | `VARCHAR(30)` | `SINGLE`, `MARRIED`, `DIVORCED`, `WIDOWED`, `SEPARATED` |
-| **Place of Residence & City** | `employees` | `place_of_residence`, `city`| `VARCHAR(255)` | Address & Region |
-| **Phone Number & Email** | `employees` | `phone_number`, `personal_email` | `VARCHAR(100)` | Contact info |
-| **NIN Number** | `employees` | `national_id_nin` | `VARCHAR(50)` | Uganda National ID (Unique) |
-| **Name of Spouse & Phone** | `employee_dependents` | `full_name`, `phone_number` | `VARCHAR(255)` | `relationship_type = 'SPOUSE'` |
-| **Children's Details (Table)** | `employee_dependents` | `full_name`, `date_of_birth`, `age`, `gender` | Multiple rows | `relationship_type = 'CHILD'` (Supports unlimited children) |
-| **Job Title & Department** | `employees` | `job_title`, `department` | `VARCHAR(255)` | Scoped to facility |
-| **Manager/Supervisor** | `employees` | `manager_supervisor_id` | `BIGINT` | Self-referencing FK to `employees.id` |
-| **Employment Status** | `employees` | `employment_status` | `VARCHAR(50)` | `FULL_TIME`, `PART_TIME`, `CONTRACT` |
-| **Emergency Contact 1 & 2** | `emergency_contacts` | `contact_name`, `relationship`, `primary_phone`, `alternate_phone` | Multiple rows | `priority = 1` or `2` |
-| **Education Background** | `education_records` | `degree_title`, `institution`, `graduation_year` | Multiple rows | Highest degree attained |
-| **Professional Experience** | `employment_history` | `previous_employer`, `job_title`, `duration_from_to` | Multiple rows | Career background |
-| **Languages Spoken** | `employees` | `custom_fields->'languages'` | `JSONB` | Array: `["English", "Luganda", "Runyankole"]` |
-| **Facility-Specific Certs** | `employee_certifications` | `cert_type`, `cert_name`, `license_number`, `expiry_date` | Multiple rows | Cleanroom Gowning, GCP, Organic GAP |
+| Team Baseline Draft | Enterprise Multi-Facility Enhancements | Operational & Regulatory Benefit |
+| :--- | :--- | :--- |
+| **1. Direct User-Employee FK (`users.employee_id`)** | **Decoupled IAM & HR (`employees.user_id` nullable)** | External auditors, IT admins, and contractors can have system access without creating fake employment contracts. |
+| **2. Single-Facility Roles** | **Facility-Scoped RBAC (`user_role_assignments.organization_unit_id`)** | Allows individuals (e.g. Dr. Sarah Nakato) to hold different role tiers across Matugga (Tier 1 GMP) and Kakiika (Tier 2 GCP). |
+| **3. Static Bio-Data Columns** | **Dynamic Schema Engine (`form_schemas` + `custom_fields JSONB`)** | Enables HR to introduce new fields (Blood Group, Biometric RFID) in the Form Builder with zero database downtime. |
+| **4. Basic Payroll Ledger** | **21 CFR Part 11 Audit Trail (`audit_logs`)** | Maintains immutable electronic records with user, timestamp, previous state, and IP tracking for WHO GMP compliance. |
+| **5. Flat Facility List** | **3-Tier Organizational Hierarchy (`Location ➔ Organization ➔ OrganizationUnit`)** | Supports holding company consolidation while preserving separate cost centers and plant certifications. |
 
 ---
 
-## 3. 🗄️ Production SQL DDL Schema (PostgreSQL / CockroachDB)
+## 3. 🗄️ Production SQL DDL Schema
 
 ```sql
--- ============================================================================
--- DEI BIOPHARMA HR MICROSERVICE SCHEMA
--- ============================================================================
+-- 1. Locations Table
+CREATE TABLE locations (
+    id BIGSERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    address_line_1 VARCHAR(255) NOT NULL,
+    city VARCHAR(100) NOT NULL,
+    country VARCHAR(100) NOT NULL DEFAULT 'Uganda',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
 
--- 1. Main Employees Table
+-- 2. Organizations Table (Parent Holding)
+CREATE TABLE organizations (
+    id BIGSERIAL PRIMARY KEY,
+    location_id BIGINT REFERENCES locations(id),
+    name VARCHAR(255) NOT NULL,
+    legal_registration_no VARCHAR(100) UNIQUE NOT NULL,
+    entity_type VARCHAR(100) NOT NULL DEFAULT 'CONGLOMERATE',
+    date_founded DATE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 3. Organization Units (Facilities: Matugga, Kakiika, Nakaseke, HQ)
+CREATE TABLE organization_units (
+    id BIGSERIAL PRIMARY KEY,
+    organization_id BIGINT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+    location_id BIGINT REFERENCES locations(id),
+    code VARCHAR(50) UNIQUE NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    unit_type VARCHAR(50) NOT NULL CHECK (unit_type IN ('MANUFACTURING', 'CLINICAL', 'AGRICULTURE', 'CORPORATE')),
+    is_gmp_certified BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 4. Auth & IAM Users
+CREATE TABLE users (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    username VARCHAR(100) UNIQUE NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash VARCHAR(500) NOT NULL,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    failed_login_count INTEGER NOT NULL DEFAULT 0,
+    last_login_at TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 5. Multi-Facility User Role Assignments
+CREATE TABLE user_role_assignments (
+    id BIGSERIAL PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    role_id BIGINT NOT NULL,
+    organization_unit_id BIGINT NOT NULL REFERENCES organization_units(id) ON DELETE CASCADE,
+    start_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    end_at TIMESTAMP WITH TIME ZONE,
+    status VARCHAR(30) NOT NULL DEFAULT 'ACTIVE' CHECK (status IN ('ACTIVE', 'REVOKED', 'EXPIRED')),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 6. Form Schemas (Dynamic Intake Engine)
+CREATE TABLE form_schemas (
+    id BIGSERIAL PRIMARY KEY,
+    organization_id BIGINT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+    version_code VARCHAR(20) UNIQUE NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    schema_definition JSONB NOT NULL,
+    effective_date DATE NOT NULL,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 7. Main Employees Table
 CREATE TABLE employees (
     id BIGSERIAL PRIMARY KEY,
-    user_id UUID NULL,                                      -- Nullable link to IAM Service User
-    organization_unit_id BIGINT NOT NULL,                   -- Facility / Org Unit (Matugga, Kakiika, etc.)
-    employee_number VARCHAR(50) UNIQUE NOT NULL,            -- e.g. DEI-MAT-0142
+    user_id UUID NULL REFERENCES users(id) ON DELETE SET NULL,
+    organization_unit_id BIGINT NOT NULL REFERENCES organization_units(id),
+    employee_number VARCHAR(50) UNIQUE NOT NULL,
     full_name VARCHAR(255) NOT NULL,
-    national_id_nin VARCHAR(50) UNIQUE NOT NULL,            -- Uganda NIN
+    national_id_nin VARCHAR(50) UNIQUE NOT NULL,
     date_of_birth DATE NOT NULL,
     gender VARCHAR(20) NOT NULL CHECK (gender IN ('MALE', 'FEMALE', 'OTHER')),
     marital_status VARCHAR(30) NOT NULL CHECK (marital_status IN ('SINGLE', 'MARRIED', 'DIVORCED', 'WIDOWED', 'SEPARATED')),
@@ -214,130 +295,30 @@ CREATE TABLE employees (
     base_currency VARCHAR(10) NOT NULL DEFAULT 'USD',
     base_salary DECIMAL(14, 2) NOT NULL DEFAULT 0.00,
     status VARCHAR(30) NOT NULL DEFAULT 'ACTIVE' CHECK (status IN ('ACTIVE', 'ON_LEAVE', 'SUSPENDED', 'TERMINATED')),
-    form_version VARCHAR(20) NOT NULL DEFAULT 'v1.0',       -- Tracks form schema version
-    custom_fields JSONB DEFAULT '{}'::jsonb,                -- Flexible facility-specific attributes
+    form_version VARCHAR(20) NOT NULL REFERENCES form_schemas(version_code),
+    custom_fields JSONB DEFAULT '{}'::jsonb,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX idx_emp_org_unit ON employees(organization_unit_id);
 CREATE INDEX idx_emp_user_id ON employees(user_id);
-CREATE INDEX idx_emp_status ON employees(status);
-CREATE INDEX idx_emp_nin ON employees(national_id_nin);
+CREATE INDEX idx_emp_custom_fields ON employees USING GIN (custom_fields);
 
--- 2. Generic Dependents & Family Members Table
-CREATE TABLE employee_dependents (
+-- 8. 21 CFR Part 11 Audit Trail Table
+CREATE TABLE audit_logs (
     id BIGSERIAL PRIMARY KEY,
-    employee_id BIGINT NOT NULL REFERENCES employees(id) ON DELETE CASCADE,
-    relationship_type VARCHAR(30) NOT NULL CHECK (relationship_type IN ('SPOUSE', 'CHILD', 'PARENT', 'SIBLING', 'OTHER')),
-    full_name VARCHAR(255) NOT NULL,
-    date_of_birth DATE,
-    age INTEGER,
-    gender VARCHAR(20),
-    phone_number VARCHAR(50),                               -- Spouse / dependent phone
-    is_emergency_contact BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+    organization_unit_id BIGINT REFERENCES organization_units(id),
+    action VARCHAR(100) NOT NULL,
+    entity_type VARCHAR(100) NOT NULL,
+    entity_id BIGINT NOT NULL,
+    previous_state JSONB,
+    new_state JSONB,
+    ip_address VARCHAR(100),
+    timestamp TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_dependents_emp ON employee_dependents(employee_id);
-
--- 3. Emergency Contacts
-CREATE TABLE emergency_contacts (
-    id BIGSERIAL PRIMARY KEY,
-    employee_id BIGINT NOT NULL REFERENCES employees(id) ON DELETE CASCADE,
-    priority INTEGER NOT NULL DEFAULT 1,                    -- 1 = Primary, 2 = Secondary
-    contact_name VARCHAR(255) NOT NULL,
-    relationship VARCHAR(100) NOT NULL,
-    primary_phone VARCHAR(50) NOT NULL,
-    alternate_phone VARCHAR(50),
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-
--- 4. Education Records
-CREATE TABLE education_records (
-    id BIGSERIAL PRIMARY KEY,
-    employee_id BIGINT NOT NULL REFERENCES employees(id) ON DELETE CASCADE,
-    degree_title VARCHAR(255) NOT NULL,
-    institution VARCHAR(255) NOT NULL,
-    graduation_year INTEGER NOT NULL,
-    grade_classification VARCHAR(100),
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-
--- 5. Employment Experience History
-CREATE TABLE employment_history (
-    id BIGSERIAL PRIMARY KEY,
-    employee_id BIGINT NOT NULL REFERENCES employees(id) ON DELETE CASCADE,
-    previous_employer VARCHAR(255) NOT NULL,
-    job_title VARCHAR(255) NOT NULL,
-    duration_from_to VARCHAR(100) NOT NULL,
-    key_responsibilities TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-
--- 6. Biotechnology & Compliance Certifications
-CREATE TABLE employee_certifications (
-    id BIGSERIAL PRIMARY KEY,
-    employee_id BIGINT NOT NULL REFERENCES employees(id) ON DELETE CASCADE,
-    cert_type VARCHAR(50) NOT NULL CHECK (cert_type IN ('GMP_CLEANROOM', 'GCP_CLINICAL', 'GAP_ORGANIC', 'BSL3', 'MEDICAL_LICENSE')),
-    cert_name VARCHAR(255) NOT NULL,
-    issuing_body VARCHAR(255) NOT NULL,
-    license_number VARCHAR(100),
-    issue_date DATE NOT NULL,
-    expiry_date DATE NOT NULL,
-    verification_status VARCHAR(30) NOT NULL DEFAULT 'VALID' CHECK (verification_status IN ('VALID', 'EXPIRING_SOON', 'EXPIRED')),
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE INDEX idx_certs_expiry ON employee_certifications(expiry_date, verification_status);
-
--- 7. 24/7 Operations Shift Assignments
-CREATE TABLE shift_assignments (
-    id BIGSERIAL PRIMARY KEY,
-    employee_id BIGINT NOT NULL REFERENCES employees(id) ON DELETE CASCADE,
-    organization_unit_id BIGINT NOT NULL,
-    shift_code VARCHAR(50) NOT NULL CHECK (shift_code IN ('SHIFT_A_MORNING', 'SHIFT_B_EVENING', 'SHIFT_C_NIGHT')),
-    production_line VARCHAR(100) NOT NULL,                  -- e.g. "Bioreactor Bay 2"
-    start_date DATE NOT NULL,
-    end_date DATE NOT NULL,
-    status VARCHAR(30) NOT NULL DEFAULT 'SCHEDULED' CHECK (status IN ('SCHEDULED', 'ON_DUTY', 'COMPLETED', 'ABSENT')),
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-
--- 8. Payroll Execution Runs
-CREATE TABLE payroll_runs (
-    id BIGSERIAL PRIMARY KEY,
-    organization_unit_id BIGINT NOT NULL,
-    batch_number VARCHAR(50) UNIQUE NOT NULL,
-    period_month_year VARCHAR(50) NOT NULL,                 -- e.g. "August 2026"
-    currency VARCHAR(10) NOT NULL DEFAULT 'USD',
-    total_gross_pay DECIMAL(14, 2) NOT NULL DEFAULT 0.00,
-    total_nssf_employer DECIMAL(14, 2) NOT NULL DEFAULT 0.00,
-    total_nssf_employee DECIMAL(14, 2) NOT NULL DEFAULT 0.00,
-    total_paye_tax DECIMAL(14, 2) NOT NULL DEFAULT 0.00,
-    total_net_disbursed DECIMAL(14, 2) NOT NULL DEFAULT 0.00,
-    status VARCHAR(30) NOT NULL DEFAULT 'DRAFT' CHECK (status IN ('DRAFT', 'REVIEWED', 'APPROVED', 'DISBURSED')),
-    processed_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-
--- 9. Individual Employee Payslips
-CREATE TABLE payslips (
-    id BIGSERIAL PRIMARY KEY,
-    payroll_run_id BIGINT NOT NULL REFERENCES payroll_runs(id) ON DELETE CASCADE,
-    employee_id BIGINT NOT NULL REFERENCES employees(id),
-    base_salary DECIMAL(14, 2) NOT NULL,
-    hazard_allowance DECIMAL(14, 2) NOT NULL DEFAULT 0.00,  -- Biotech Cleanroom / BSL-3 hazard pay
-    overtime_allowance DECIMAL(14, 2) NOT NULL DEFAULT 0.00,
-    gross_pay DECIMAL(14, 2) NOT NULL,
-    nssf_employee_deduction DECIMAL(14, 2) NOT NULL,        -- 5% Employee
-    paye_tax_deduction DECIMAL(14, 2) NOT NULL,             -- Uganda URA PAYE
-    local_service_tax DECIMAL(14, 2) NOT NULL DEFAULT 0.00,
-    other_deductions DECIMAL(14, 2) NOT NULL DEFAULT 0.00,
-    net_pay DECIMAL(14, 2) NOT NULL,
-    payment_method VARCHAR(50) NOT NULL DEFAULT 'BANK_TRANSFER' CHECK (payment_method IN ('BANK_TRANSFER', 'MOBILE_MONEY')),
-    bank_name VARCHAR(100),
-    bank_account_no VARCHAR(100),
-    status VARCHAR(30) NOT NULL DEFAULT 'GENERATED' CHECK (status IN ('GENERATED', 'PAID')),
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
+CREATE INDEX idx_audit_entity ON audit_logs(entity_type, entity_id);
+CREATE INDEX idx_audit_timestamp ON audit_logs(timestamp);
 ```
